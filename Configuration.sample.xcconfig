@@ -7,3 +7,6 @@ APP_GROUP_PREFIX = AsheKube
 // Optional per-target distribution files, generated locally for a fork:
 // ASHELL_CODE_SIGN_ENTITLEMENTS = build/testflight/$(TARGET_NAME).entitlements
 // ASHELL_INFOPLIST_FILE = build/testflight/$(TARGET_NAME)-Info.plist
+// ASHELL_CODE_SIGN_STYLE = Manual
+// ASHELL_CODE_SIGN_IDENTITY = Apple Distribution
+// ASHELL_PROVISIONING_PROFILE_SPECIFIER = AshellHR-$(TARGET_NAME)-AppStore-601
