@@ -76,18 +76,18 @@ Additional prerequisites:
 Open `a-Shell.xcodeproj` and select `a-Shell-noPython`. To build an unsigned app for iOS devices:
 
 ```sh
-xcodebuild -project a-Shell.xcodeproj -scheme a-Shell-noPython -configuration Debug -destination 'generic/platform=iOS' IPHONEOS_DEPLOYMENT_TARGET=15.0 CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project a-Shell.xcodeproj -scheme a-Shell-noPython -configuration Debug -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
-Xcode 27.1 rejects the project's 14.0 deployment target with "the range of supported deployment target versions is 15.0 to 27.1.x", so this command sets 15.0. To build a signed app, copy `Configuration.sample.xcconfig` to `Configuration.xcconfig`, replace the team ID and prefixes with your own, and omit `CODE_SIGNING_ALLOWED=NO`.
+The application targets use iOS 15, and the App Intents extensions use iOS 16. Keep these per-target minimums when archiving; a global `IPHONEOS_DEPLOYMENT_TARGET` override can lower the extension below its required minimum and cause TestFlight rejection. To build a signed app, copy `Configuration.sample.xcconfig` to `Configuration.xcconfig`, replace the team ID and prefixes with your own, and omit `CODE_SIGNING_ALLOWED=NO`.
 
 For an x86_64 Simulator build:
 
 ```sh
-xcodebuild -project a-Shell.xcodeproj -scheme a-Shell-noPython -configuration Debug -destination 'generic/platform=iOS Simulator' ARCHS=x86_64 IPHONEOS_DEPLOYMENT_TARGET=15.0 CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project a-Shell.xcodeproj -scheme a-Shell-noPython -configuration Debug -destination 'generic/platform=iOS Simulator' ARCHS=x86_64 CODE_SIGNING_ALLOWED=NO build
 ```
 
-The Simulator build needs the same deployment-target override on Xcode 27.1. The downloaded Simulator slices have mixed architectures: ImageMagick and its freetype/harfbuzz/libpng dependencies are x86_64-only, while `bc_ios` is arm64-only. A successful build does not make every command runnable on the same Simulator.
+The downloaded Simulator slices have mixed architectures: ImageMagick and its freetype/harfbuzz/libpng dependencies are x86_64-only, while `bc_ios` is arm64-only. A successful build does not make every command runnable on the same Simulator.
 
 Because Python 3.x uses functions that are only available on the iOS 14 SDK, I've set the minimum iOS version to 14.0. It also reduces the size of the binaries, so `ios_system` and the other frameworks have the same settings. If you need to run it on an iOS 13 device, you'll have to recompile most frameworks.
 
