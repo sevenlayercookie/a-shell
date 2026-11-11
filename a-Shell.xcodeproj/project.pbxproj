@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B62600000000000000000002 /* ContinuedProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62600000000000000000001 /* ContinuedProcessing.swift */; };
+		B62600000000000000000003 /* ContinuedProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62600000000000000000001 /* ContinuedProcessing.swift */; };
+		B62600000000000000000004 /* ContinuedProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62600000000000000000001 /* ContinuedProcessing.swift */; };
+
 		2200010030F7400000000001 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2200010030F7400000000003 /* PhotosUI.framework */; };
 		2200010030F7400000000002 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2200010030F7400000000003 /* PhotosUI.framework */; };
 		2200010030F7400000000004 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2200010030F7400000000003 /* PhotosUI.framework */; };
@@ -2006,6 +2010,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B62600000000000000000001 /* ContinuedProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuedProcessing.swift; sourceTree = "<group>"; };
 		0D42108A37D6DADFD0F492BE /* ExecuteLongCommandIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExecuteLongCommandIntent.swift; sourceTree = "<group>"; };
 		196EF73B3E7DE25B1CE754F5 /* ProgressCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCommand.swift; sourceTree = "<group>"; };
 		2200010030F7400000000003 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -2871,7 +2876,7 @@
 		A22600000000000000000002 /* codex/codex.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = codex/codex.xcframework; sourceTree = SOURCE_ROOT; };
 		A53600000000000000000001 /* freetype.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = freetype.xcframework; path = xcfs/.build/artifacts/xcfs/freetype/freetype.xcframework; sourceTree = SOURCE_ROOT; };
 		A53600000000000000000002 /* harfbuzz.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = harfbuzz.xcframework; path = xcfs/.build/artifacts/xcfs/harfbuzz/harfbuzz.xcframework; sourceTree = SOURCE_ROOT; };
-		A53600000000000000000003 /* libpng.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libpng.xcframework; path = "cpython/Python-aux/libpng.xcframework"; sourceTree = SOURCE_ROOT; };
+		A53600000000000000000003 /* libpng.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libpng.xcframework; path = xcfs/.build/artifacts/xcfs/libpng/libpng.xcframework; sourceTree = SOURCE_ROOT; };
 		A59100000000000000000004 /* Relay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relay.swift; sourceTree = "<group>"; };
 		A83EA8C808E52262F507587D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AE1100000000000000000002 /* helix/helix.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = helix/helix.xcframework; sourceTree = SOURCE_ROOT; };
@@ -3067,6 +3072,7 @@
 			children = (
 				2208ACBB22CCE529003985D6 /* Util */,
 				22B1B83322CBC53700F7C452 /* a-Shell.entitlements */,
+				B62600000000000000000001 /* ContinuedProcessing.swift */,
 				22984EED22C93DBC00069497 /* AppDelegate.swift */,
 				22D23117231940B2005B0C12 /* ExtraCommands.swift */,
 				A59100000000000000000004 /* Relay.swift */,
@@ -4513,6 +4519,7 @@
 				610000000000000000000002 /* TerminalTheme.swift in Sources */,
 				620000000000000000000002 /* TerminalPrompt.swift in Sources */,
 				707000000000000000000002 /* TerminalFont.swift in Sources */,
+				B62600000000000000000002 /* ContinuedProcessing.swift in Sources */,
 				224A903C2ADD0999006DB9CC /* AppDelegate.swift in Sources */,
 				224A903E2ADD0999006DB9CC /* Tips.swift in Sources */,
 				224A903F2ADD0999006DB9CC /* SceneDelegate.swift in Sources */,
@@ -4546,6 +4553,7 @@
 				610000000000000000000004 /* TerminalTheme.swift in Sources */,
 				620000000000000000000004 /* TerminalPrompt.swift in Sources */,
 				707000000000000000000004 /* TerminalFont.swift in Sources */,
+				B62600000000000000000003 /* ContinuedProcessing.swift in Sources */,
 				22984EEE22C93DBC00069497 /* AppDelegate.swift in Sources */,
 				22984EF022C93DBC00069497 /* SceneDelegate.swift in Sources */,
 				223A1C1C2A5EDCA700B1B9AD /* Tips.swift in Sources */,
@@ -4579,6 +4587,7 @@
 				610000000000000000000003 /* TerminalTheme.swift in Sources */,
 				620000000000000000000003 /* TerminalPrompt.swift in Sources */,
 				707000000000000000000003 /* TerminalFont.swift in Sources */,
+				B62600000000000000000004 /* ContinuedProcessing.swift in Sources */,
 				229D2478257931E4004A78AC /* AppDelegate.swift in Sources */,
 				223A1C1D2A5EDCA700B1B9AD /* Tips.swift in Sources */,
 				224754D72EFBDF48007C35FE /* SceneDelegate+TerminalView.swift in Sources */,

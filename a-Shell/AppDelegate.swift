@@ -203,6 +203,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        if #available(iOS 26.0, *) {
+            ContinuedProcessing.shared.register()
+        }
         #if DEBUG
         NSLog("Application didFinishLaunchingWithOptions \(String(describing: launchOptions))")
         #endif

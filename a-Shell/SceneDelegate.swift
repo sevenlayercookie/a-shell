@@ -113,6 +113,7 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
     // Are we editing a file?
     var closeAfterCommandTerminates = false
     var resetDirectoryAfterCommandTerminates = ""
+    private var backgroundCommandPendingOrRunning = false
     var currentCommand = ""
     var interactiveCommandRunning = true
     //
@@ -2904,7 +2905,42 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         return true
     }
     
-    func executeCommand(command: String) {
+    func executeCommand(command: String, backgroundExecution: ContinuedCommandExecution? = nil) {
+        let trimmedCommand = command.trimmingCharacters(in: .whitespacesAndNewlines)
+        let firstWord = trimmedCommand.split(whereSeparator: { $0.isWhitespace }).first
+        if backgroundExecution == nil && firstWord == "background" {
+            if !Thread.isMainThread {
+                DispatchQueue.main.async { self.executeCommand(command: command) }
+                return
+            }
+            let work = String(trimmedCommand.dropFirst("background".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+            let fail: (String) -> Void = { message in
+                self.terminalView?.feed(text: "background: \(message)\r\n")
+                self.printPrompt()
+            }
+            guard !work.isEmpty else { fail("Usage: background <command or script>"); return }
+            // Window management bypasses the worker and cannot own a background task.
+            guard let first = work.split(whereSeparator: { $0.isWhitespace }).first,
+                  !["exit", "newWindow", "background"].contains(String(first)),
+                  !["exit", "newWindow"].contains(aliasedCommand(String(first)) ?? "") else {
+                fail("Use a noninteractive command or script."); return
+            }
+            guard currentCommand.isEmpty else { fail("This terminal is busy."); return }
+            if #available(iOS 26.0, *) {
+                do {
+                    try ContinuedProcessing.shared.submit(command: work, start: { execution in
+                        self.executeCommand(command: work, backgroundExecution: execution)
+                    }, onFailure: { error in
+                        self.currentCommand = ""
+                        self.backgroundCommandPendingOrRunning = false
+                        fail(error.localizedDescription)
+                    })
+                    self.currentCommand = command
+                    self.backgroundCommandPendingOrRunning = true
+                } catch { fail(error.localizedDescription) }
+            } else { fail("Requires iOS 26 or later.") }
+            return
+        }
         // This line, specifically, causes a crash with the following command:
         // open shortcuts://run-shortcut?name=%EC%9C%A0%ED%8A%9C%EB%B8%8C%20%EB%B0%9B%EA%B8%B0&input=%22hi%22
         // See: https://discord.com/channels/935519150305050644/1452153688284987443/1534518700500320329
@@ -2981,6 +3017,21 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         // "normal" commands can go through ios_system
         // We use a queue to allow the system to continue running (important for commands that interact with the system, such as "config -n" and "view".
         commandQueue.async {
+            var backgroundSucceeded = false
+            defer {
+                backgroundExecution?.finish(success: backgroundSucceeded)
+                if backgroundExecution != nil {
+                    DispatchQueue.main.async {
+                        self.backgroundCommandPendingOrRunning = false
+                        // Stream setup can fail before the usual prompt cleanup.
+                        if !self.currentCommand.isEmpty {
+                            self.currentCommand = ""
+                            self.pid = 0
+                            self.printPrompt()
+                        }
+                    }
+                }
+            }
             // set up streams for feedback:
             // Create new pipes for our own stdout/stderr
             // Get file for stdin that can be read from
@@ -3006,10 +3057,21 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
                 }
                 return
             }
-            self.stdin_file_input = stdin_pipe.fileHandleForWriting
+            if backgroundExecution != nil {
+                // Background work cannot wait for terminal input. Closing the writer gives EOF.
+                try? stdin_pipe.fileHandleForWriting.close()
+                self.stdin_file_input = nil
+            } else {
+                self.stdin_file_input = stdin_pipe.fileHandleForWriting
+            }
             let tty_pipe = Pipe()
             self.tty_file = fdopen(tty_pipe.fileHandleForReading.fileDescriptor, "r")
-            self.tty_file_input = tty_pipe.fileHandleForWriting
+            if backgroundExecution != nil {
+                try? tty_pipe.fileHandleForWriting.close()
+                self.tty_file_input = nil
+            } else {
+                self.tty_file_input = tty_pipe.fileHandleForWriting
+            }
             // Get file for stdout/stderr that can be written to
             var stdout_pipe = Pipe()
             counter = 0
@@ -3038,6 +3100,15 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             // Make sure we're on the right session:
             ios_switchSession(self.persistentIdentifier?.toCString())
             ios_setContext(UnsafeMutableRawPointer(mutating: self.persistentIdentifier?.toCString()));
+            let progressContext = ios_getContext().map { UnsafeMutablePointer(mutating: $0.assumingMemoryBound(to: CChar.self)) }
+            if let backgroundExecution, let progressContext {
+                ProgressCommand.setHandler(for: progressContext, backgroundExecution.report)
+            }
+            defer {
+                if backgroundExecution != nil, let progressContext {
+                    ProgressCommand.setHandler(for: progressContext, nil)
+                }
+            }
             // Set COLUMNS to term width:
             setenv("COLUMNS", "\(self.width)".toCString(), 1);
             setenv("LINES", "\(self.height)".toCString(), 1);
@@ -3056,10 +3127,16 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             // setenv("LC_ALL", "UTF-8", 1);
             // setlocale(LC_ALL, "UTF-8");
             let commands = command.components(separatedBy: "\n")
+            var backgroundStatus: Int32 = 0
             for command in commands {
+                if backgroundExecution?.isCancelled == true { break }
                 let arguments = command.components(separatedBy: " ")
                 if let actualCommand = aliasedCommand(arguments[0]) {
                     NSLog("Received command to execute: \(actualCommand)")
+                    if backgroundExecution != nil && ["exit", "newWindow"].contains(actualCommand) {
+                        backgroundStatus = 1
+                        break
+                    }
                     if (actualCommand == "exit") {
                         self.closeWindow()
                         break // if "exit" didn't work, still don't execute the rest of the commands.
@@ -3117,20 +3194,24 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
                 // the keyboard uses NFC with non-English systems.
                 // See: https://github.com/holzschu/a-shell/issues/995
                 // And: https://developer.apple.com/forums/thread/817449
-                ios_system(self.currentCommand.decomposedStringWithCanonicalMapping)
+                let commandStatus = ios_system(self.currentCommand.decomposedStringWithCanonicalMapping)
                 NSLog("Returned from ios_system")
                 // for long running commands, ios_waitpid eats up to 68% CPU.
                 // but for short-running commands, we need it to be reactive.
                 // I tried with a timer, but it didn't work (not reactive enough, fails with dash)
                 ios_waitpid(self.pid)
                 NSLog("Returned from ios_waitpid")
+                backgroundStatus = commandStatus == 0 ? ios_getCommandStatus() : commandStatus
                 ios_releaseThreadId(self.pid)
+                if backgroundExecution != nil && backgroundStatus != 0 { break }
                 DispatchQueue.main.async {
                     UIApplication.shared.isIdleTimerDisabled = false
                 }
                 // NSLog("Done executing command: \(command)")
                 // NSLog("Current directory: \(FileManager().currentDirectoryPath)")
             }
+            backgroundSucceeded = backgroundStatus == 0 && backgroundExecution?.isCancelled != true
+            DispatchQueue.main.async { UIApplication.shared.isIdleTimerDisabled = false }
             do {
                 fclose(self.stdin_file)
                 try stdin_pipe.fileHandleForReading.close()
@@ -4329,6 +4410,8 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         // The scene may re-connect later, as its session was not neccessarily discarded (see `application:didDiscardSceneSessions` instead).
         // If there is a command running, tell it to quit (cleanly):
         NSLog("sceneDidDisconnect: \(self.persistentIdentifier). currentCommand= \(currentCommand)")
+        // The scheduler, rather than the window lifecycle, owns continued processing.
+        if backgroundCommandPendingOrRunning { return }
         if (currentCommand != "") {
             // time to send an exit code to the command
             var exitCommand = ""
@@ -4703,7 +4786,8 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         if (terminalFontLigature != nil) {
             scene.session.stateRestorationActivity?.userInfo!["fontLigature"] = terminalFontLigature!
         }
-        scene.session.stateRestorationActivity?.userInfo!["currentCommand"] = currentCommand
+        // Continued work is never replayed automatically after process termination.
+        scene.session.stateRestorationActivity?.userInfo!["currentCommand"] = backgroundCommandPendingOrRunning ? "" : currentCommand
         // save the environment variables:
         var env = [String]()
         var currentPath: String = ""
@@ -4736,7 +4820,7 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         // NSLog("storing currentCommand= \(currentCommand)")
         // Save all open editor windows
         // TODO: save context (Vim session)
-        if (currentCommand != "") {
+        if !backgroundCommandPendingOrRunning && !currentCommand.isEmpty {
             // time to send an exit code to the command
             var saveCommand = ""
             // Recognize both the raw command and the command with arguments:

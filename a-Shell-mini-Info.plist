@@ -188,8 +188,13 @@
 			</array>
 		</dict>
 	</dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).continuedProcessing.*</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>processing</string>
 		<string>audio</string>
 		<string>fetch</string>
 		<string>remote-notification</string>

@@ -18,6 +18,34 @@ When opening a new window, a-Shell executes the file `.profile` if it exists. Yo
 
 For more tips on how to use a-Shell, see <a href="https://bianshen00009.gitbook.io/a-guide-to-a-shell/">the document</a>.
 
+## Background commands
+
+On iOS 26 and later, start a noninteractive command from the foreground terminal with:
+
+```sh
+background dash ~/Documents/process-files.sh
+```
+
+This requests `BGContinuedProcessingTask` runtime. The command starts only when iOS grants the request, keeps its terminal session and output, and can continue when you switch apps or lock the device. Only one background command runs across all windows. If iOS cannot start it immediately, a-Shell reports the submission error; it does not queue the command for a later launch. Standard input and terminal input receive EOF. Use native, noninteractive commands; commands that depend on an editor, browser or WebKit execution are outside this background workflow.
+
+Scripts should report actual progress to the system Live Activity using the existing `progress` command:
+
+```sh
+progress 0/100 "Preparing files"
+# Do some work, then report completed units:
+progress 25/100 "25 files processed"
+# Finish the remaining work before marking it done:
+progress --done
+```
+
+`progress 50%`, `progress --title "Exporting"`, and `progress "Uploading results"` also update the task. Progress is scoped to the running terminal session and adds no output. iOS may expire stalled work, so long individual operations should report progress themselves. Runtime is subject to system conditions, rather than a guarantee of unlimited execution.
+
+Cancellation through the system UI or expiration releases the background task and stops subsequent top-level commands. Cancellation is cooperative: an in-flight `ios_system` command or script may continue until it returns, and iOS can suspend or terminate the app. Save intermediate results in your script. Window disconnection does not cancel scheduled work, and background commands are never replayed during state restoration.
+
+Shortcuts already exposes **Execute Long Command** through the dedicated App Intents extension. It uses `LongRunningIntent` with the same `progress` command. Apple's installed SDK marks `LongRunningIntent` and `performBackgroundTask` as **iOS 27+**, so this action remains gated to iOS 27; terminal background processing uses the iOS 26 API. The legacy Shortcuts action remains available on earlier systems.
+
+Run `sh tests/continued-processing.sh` for progress, cancellation, failure, overflow and session-handler checks, and `sh tests/long-commands-errors.sh` for the existing intent executor tests. To validate scheduling, use a signed build on a physical iOS 26+ device: start a progress-reporting script, switch apps, verify output on return, cancel from the Live Activity, and confirm a second request is rejected until the first command has unwound. Also check an empty command, a nonzero exit, and an unavailable scheduler. The host tests do not simulate iOS scheduling.
+
 ## AppStore
 
 a-Shell is now <a href="https://holzschu.github.io/a-Shell_iOS/">available on the AppStore</a>.
