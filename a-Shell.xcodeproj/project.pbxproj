@@ -4745,7 +4745,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-LongCommands/LongCommands.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-LongCommands/LongCommands.entitlements)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 597;
@@ -4753,7 +4753,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 				);
-				INFOPLIST_FILE = "a-Shell-LongCommands/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-LongCommands/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4777,11 +4777,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-mini-IntentsUI/a-Shell-mini-IntentsUI.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-mini-IntentsUI/a-Shell-mini-IntentsUI.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
 				ENABLE_HARDENED_RUNTIME = NO;
-				INFOPLIST_FILE = "a-Shell-mini-IntentsUI/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-IntentsUI/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4804,11 +4804,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-mini-IntentsUI/a-Shell-mini-IntentsUI.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-mini-IntentsUI/a-Shell-mini-IntentsUI.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
 				ENABLE_HARDENED_RUNTIME = NO;
-				INFOPLIST_FILE = "a-Shell-mini-IntentsUI/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-IntentsUI/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4830,10 +4830,10 @@
 		22178F14257BBBA6008EB2B4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-mini-Intents/a-Shell-mini-Intents.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-mini-Intents/a-Shell-mini-Intents.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
-				INFOPLIST_FILE = "a-Shell-mini-Intents/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-Intents/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4853,10 +4853,10 @@
 		22178F15257BBBA6008EB2B4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-mini-Intents/a-Shell-mini-Intents.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-mini-Intents/a-Shell-mini-Intents.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
-				INFOPLIST_FILE = "a-Shell-mini-Intents/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-Intents/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4879,7 +4879,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-mini";
 				BLUETOOTH_USAGE_DESCRIPTION = "a-Shell mini uses Bluetooth to connect to nearby devices from scripts and commands.";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell/a-Shell.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell/a-Shell.entitlements)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 600;
@@ -4891,7 +4891,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = "a-Shell-mini-Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4931,7 +4931,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-mini";
 				BLUETOOTH_USAGE_DESCRIPTION = "a-Shell mini uses Bluetooth to connect to nearby devices from scripts and commands.";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell/a-Shell.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell/a-Shell.entitlements)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 600;
@@ -4943,7 +4943,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = "a-Shell-mini-Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5110,7 +5110,7 @@
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell/a-Shell.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell/a-Shell.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 603;
 				DEAD_CODE_STRIPPING = NO;
@@ -5124,7 +5124,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/xcfs/.build/artifacts/xcfs",
 				);
-				INFOPLIST_FILE = "a-Shell/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell/Info.plist)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5159,7 +5159,7 @@
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell/a-Shell.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell/a-Shell.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 603;
 				DEAD_CODE_STRIPPING = NO;
@@ -5173,7 +5173,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/xcfs/.build/artifacts/xcfs",
 				);
-				INFOPLIST_FILE = "a-Shell/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell/Info.plist)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5208,7 +5208,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-mini";
 				BLUETOOTH_USAGE_DESCRIPTION = "a-Shell mini requests permission to access your Bluetooth devices.";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell/a-Shell.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell/a-Shell.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 603;
 				DEAD_CODE_STRIPPING = NO;
@@ -5221,7 +5221,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = "a-Shell-mini-Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-Info.plist)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5264,7 +5264,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-mini";
 				BLUETOOTH_USAGE_DESCRIPTION = "a-Shell mini requests permission to access your Bluetooth devices.";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell/a-Shell.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell/a-Shell.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 603;
 				DEAD_CODE_STRIPPING = NO;
@@ -5277,7 +5277,7 @@
 					"$(PROJECT_DIR)/Frameworks",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = "a-Shell-mini-Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-mini-Info.plist)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5315,7 +5315,7 @@
 		22AD8732246EBFFD00F415DE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-Intents/a-Shell-Intents.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-Intents/a-Shell-Intents.entitlements)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
@@ -5323,7 +5323,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 				);
-				INFOPLIST_FILE = "a-Shell-Intents/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-Intents/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5342,7 +5342,7 @@
 		22AD8733246EBFFD00F415DE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-Intents/a-Shell-Intents.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-Intents/a-Shell-Intents.entitlements)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
@@ -5350,7 +5350,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 				);
-				INFOPLIST_FILE = "a-Shell-Intents/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-Intents/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5369,10 +5369,10 @@
 		22AD8734246EBFFD00F415DE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-IntentsUI/a-Shell-IntentsUI.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-IntentsUI/a-Shell-IntentsUI.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
-				INFOPLIST_FILE = "a-Shell-IntentsUI/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-IntentsUI/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5390,10 +5390,10 @@
 		22AD8735246EBFFD00F415DE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-IntentsUI/a-Shell-IntentsUI.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-IntentsUI/a-Shell-IntentsUI.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 486;
-				INFOPLIST_FILE = "a-Shell-IntentsUI/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-IntentsUI/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5413,10 +5413,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-LongCommands/LongCommands.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-LongCommands/LongCommands.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 597;
-				INFOPLIST_FILE = "a-Shell-LongCommands/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-LongCommands/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5440,10 +5440,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-LongCommands/LongCommands.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-LongCommands/LongCommands.entitlements)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 597;
-				INFOPLIST_FILE = "a-Shell-LongCommands/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-LongCommands/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5468,7 +5468,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = "a-Shell-LongCommands/LongCommands.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(ASHELL_CODE_SIGN_ENTITLEMENTS:default=a-Shell-LongCommands/LongCommands.entitlements)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 597;
@@ -5476,7 +5476,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
 				);
-				INFOPLIST_FILE = "a-Shell-LongCommands/Info.plist";
+				INFOPLIST_FILE = "$(ASHELL_INFOPLIST_FILE:default=a-Shell-LongCommands/Info.plist)";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
