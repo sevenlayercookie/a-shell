@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Repair the legacy libssh2 device framework in a signed distribution archive."""
+import argparse
+import plistlib
+import re
+import subprocess
+from pathlib import Path
+
+
+def run(*args):
+    return subprocess.check_output(args, text=True).strip()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--archive', required=True, type=Path)
+    parser.add_argument('--identity', required=True, help='Installed distribution signing identity')
+    args = parser.parse_args()
+    metadata = plistlib.loads((args.archive / 'Info.plist').read_bytes())
+    app = args.archive / 'Products' / metadata['ApplicationProperties']['ApplicationPath']
+    framework = app / 'Frameworks/libssh2.framework'
+    binary = framework / 'libssh2'
+    info_path = framework / 'Info.plist'
+    info = plistlib.loads(info_path.read_bytes())
+    build = run('xcrun', 'vtool', '-arch', 'arm64', '-show-build', str(binary))
+    sdk = re.search(r'^\s+sdk\s+([0-9.]+)\s*$', build, re.MULTILINE)
+    minimum = re.search(r'^\s+minos\s+([0-9.]+)\s*$', build, re.MULTILINE)
+    if not sdk or not minimum:
+        raise RuntimeError('Cannot determine libssh2 SDK and deployment target; archive was not changed')
+    architectures = run('xcrun', 'lipo', '-archs', str(binary)).split()
+    changed = False
+    if 'arm64e' in architectures and int(sdk[1].split('.')[0]) < 26:
+        temporary = binary.with_suffix('.arm64')
+        subprocess.run(['xcrun', 'lipo', str(binary), '-remove', 'arm64e', '-output', str(temporary)], check=True)
+        temporary.replace(binary)
+        changed = True
+        print('Removed unsupported legacy arm64e slice; retained arm64')
+    if info.get('MinimumOSVersion') == 'ios_version_min':
+        info['MinimumOSVersion'] = minimum[1]
+        info_path.write_bytes(plistlib.dumps(info))
+        changed = True
+        print('Set libssh2 MinimumOSVersion to its binary deployment target:', minimum[1])
+    if changed:
+        for bundle in [framework, app]:
+            subprocess.run(['codesign', '--force', '--sign', args.identity,
+                            '--preserve-metadata=identifier,entitlements,flags',
+                            '--generate-entitlement-der', str(bundle)], check=True)
+    subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True)
+    print('Archive signatures verified')
+
+
+if __name__ == '__main__':
+    main()

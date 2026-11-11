@@ -18,6 +18,8 @@ When opening a new window, a-Shell executes the file `.profile` if it exists. Yo
 
 For more tips on how to use a-Shell, see <a href="https://bianshen00009.gitbook.io/a-guide-to-a-shell/">the document</a>.
 
+For TestFlight exports that use the legacy downloaded `libssh2` framework, run `python3 scripts/prepare-testflight-archive.py --archive /path/to/App.xcarchive --identity "Apple Distribution"` after creating the signed archive and before exporting it. This removes an old arm64e slice rejected by current upload validation, corrects its malformed minimum-OS metadata from the binary's deployment target, and re-signs the framework and app. It changes only the local archive.
+
 ## Background commands
 
 On iOS 26 and later, start a noninteractive command from the foreground terminal with:
