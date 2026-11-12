@@ -23,8 +23,8 @@ xcodebuild -project a-Shell-Python.xcodeproj -scheme a-Shell-mini \
 Use `-scheme a-Shell` for the full terminal target. The generated project leaves
 the upstream scientific dependency declarations intact in the original project.
 It is local build output and should not be committed. Available optional tools
-are included when their frameworks exist; build pico/openrsync with the existing
-scripts before generating the project. Other optional tools use the upstream
+are included when their frameworks exist, except explicitly deferred tools.
+Build openrsync with the existing script before generating the project. Other optional tools use the upstream
 framework locations declared in the original project.
 
 The runtime script verifies downloaded dependency hashes, builds CPython from
