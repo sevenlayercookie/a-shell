@@ -28,6 +28,12 @@
   char *session = strdup("python-smoke"); ios_switchSession(session); ios_setContext(session);
   ios_setDirectoryURL([NSURL fileURLWithPath:documents]);
   NSArray *commands = @[
+   @"python3 -c 'import numpy as np; a=np.array([[3.,1.],[1.,2.]]); assert np.allclose(np.linalg.solve(a,[9.,8.]),[2.,3.]); assert np.allclose(np.fft.rfft([0,1,2,3]),[6,-2+2j,-2]); print(\"NUMPY_OK\", np.__version__)'",
+   @"python3 -c 'import numpy as np; x=np.random.default_rng(7).normal(size=100); assert np.isfinite(x).all(); print(\"NUMPY_REPEAT_OK\", float(x.mean()))'",
+
+   @"python3 -c 'import cryptography; from cryptography.fernet import Fernet; f=Fernet(Fernet.generate_key()); assert f.decrypt(f.encrypt(b\"crypto works\")) == b\"crypto works\"; print(\"CRYPTOGRAPHY_OK\", cryptography.__version__)'",
+   @"python3 -c 'from cryptography.fernet import Fernet; f=Fernet(Fernet.generate_key()); assert f.decrypt(f.encrypt(b\"repeat\")) == b\"repeat\"; print(\"CRYPTOGRAPHY_REPEAT_OK\")'",
+
    @"python3 -c 'import sys, ssl, sqlite3, ctypes, lzma, hashlib, json; print(json.dumps({\"python\":sys.version,\"ssl\":ssl.OPENSSL_VERSION,\"sqlite\":sqlite3.sqlite_version,\"hash\":hashlib.sha256(b\"test\").hexdigest(),\"lzma\":lzma.decompress(lzma.compress(b\"ok\")).decode()}))'",
    @"pip --version",
    @"ipython --quick --no-banner -c 'print(\"IPYTHON_OK\")'",

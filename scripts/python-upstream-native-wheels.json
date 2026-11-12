@@ -1,0 +1,33 @@
+{
+  "source": "https://github.com/beeware/mobile-forge",
+  "wheels": [
+    {
+      "name": "cffi",
+      "version": "1.17.1",
+      "filename": "cffi-1.17.1-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "url": "https://api.anaconda.org/download/beeware/cffi/1.17.1/cffi-1.17.1-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "sha256": "522676e80e4c47ae7c0ea57fe0dcaaaf6e920b0fc0eb81dabbf5f85600732d02"
+    },
+    {
+      "name": "cffi",
+      "version": "1.17.1",
+      "filename": "cffi-1.17.1-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "url": "https://api.anaconda.org/download/beeware/cffi/1.17.1/cffi-1.17.1-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "sha256": "451c8b849fa9726c5c192b8d003335916b5938265033c2dc3c390be70408fe9c"
+    },
+    {
+      "name": "cryptography",
+      "version": "3.4.8",
+      "filename": "cryptography-3.4.8-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "url": "https://api.anaconda.org/download/beeware/cryptography/3.4.8/cryptography-3.4.8-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "sha256": "c8f0e1acd9501716cf343d750f6f70e094f28974c254b272d1e0aee88cd24a29"
+    },
+    {
+      "name": "cryptography",
+      "version": "3.4.8",
+      "filename": "cryptography-3.4.8-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "url": "https://api.anaconda.org/download/beeware/cryptography/3.4.8/cryptography-3.4.8-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "sha256": "eff6b8f2d948ee1cf27e93d6c955ce483e732367ac96f2eeb20bef6383b35446"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def command(*args):
     subprocess.run([str(a) for a in args], check=True, stdout=subprocess.DEVNULL)
 
-def framework(name, binary, directory, python_library='Python'):
+def framework(name, binary, directory, python_library='Python', platform='iPhoneOS'):
     dest = directory / (name + '.framework')
     dest.mkdir(parents=True, exist_ok=True)
     shutil.copy2(binary, dest / name)
@@ -20,7 +20,7 @@ def framework(name, binary, directory, python_library='Python'):
             'CFBundleIdentifier': 'org.ashell.' + name.replace('_', '-'),
             'CFBundlePackageType': 'FMWK', 'CFBundleVersion': '1',
             'CFBundleShortVersionString': '3.13.1', 'MinimumOSVersion': '15.0',
-            'CFBundleSupportedPlatforms': ['iPhoneOS']}
+            'CFBundleSupportedPlatforms': [platform]}
     (dest / 'Info.plist').write_bytes(plistlib.dumps(info))
     command('xcrun', 'install_name_tool', '-id', f'@rpath/{name}.framework/{name}', dest / name)
     if python_library != 'Python':
