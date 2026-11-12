@@ -92,3 +92,7 @@ Resources/npm/
 Resources/node-fetch/
 /fzf/fzf.xcframework/
 /navi/navi.xcframework/
+
+# Generated Python terminal dependency profile
+/a-Shell-Python.xcodeproj/
+/scripts/__pycache__/
