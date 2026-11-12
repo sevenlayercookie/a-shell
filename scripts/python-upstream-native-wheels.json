@@ -28,6 +28,42 @@
       "filename": "cryptography-3.4.8-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
       "url": "https://api.anaconda.org/download/beeware/cryptography/3.4.8/cryptography-3.4.8-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
       "sha256": "eff6b8f2d948ee1cf27e93d6c955ce483e732367ac96f2eeb20bef6383b35446"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.5.1",
+      "filename": "kiwisolver-1.5.1-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "url": "https://files.pythonhosted.org/packages/08/c1/88018321d976f53c421e379c43bc6993e70ce0c8a3ec5edc4bfe102257f6/kiwisolver-1.5.1-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "sha256": "b6ae6a0328f0bc035741820fdeecdcd67bf4694eee03972e843663107122f450"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.5.1",
+      "filename": "kiwisolver-1.5.1-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "url": "https://files.pythonhosted.org/packages/85/d2/712bc17ea4f1d216034928069d612defbc6c95a471c55a7203a39faecb1a/kiwisolver-1.5.1-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "sha256": "886fc26012f0e8b5f69d1cfe6d711f6b11f194621539bf8e6bb1c25c5dc82724"
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0",
+      "filename": "pillow-13.0.0-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "url": "https://files.pythonhosted.org/packages/82/e2/9132d38df320e8099e2642d9fa538f18a7dfebf68a875a31725dc2a115aa/pillow-13.0.0-cp313-cp313-ios_13_0_arm64_iphoneos.whl",
+      "sha256": "e98b4f91f99b24b1da72e10621ba181f7281922384a7403094debb4199de6c00",
+      "consolidatedModule": "PIL.PIL",
+      "sourceOverrides": {
+        "PIL/ImageShow.py": "cpython/packages/PIL_ImageShow.py"
+      }
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0",
+      "filename": "pillow-13.0.0-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "url": "https://files.pythonhosted.org/packages/cb/be/436dac0996876f65ef1916ffb711c5ef4af2ebc57414b6f16642e07f6b47/pillow-13.0.0-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl",
+      "sha256": "34fb3db1149c879343861831728c243c432d4a5afc8f1878ca7612ef8de2a033",
+      "consolidatedModule": "PIL.PIL",
+      "sourceOverrides": {
+        "PIL/ImageShow.py": "cpython/packages/PIL_ImageShow.py"
+      }
     }
   ]
 }

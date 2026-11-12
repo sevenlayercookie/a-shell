@@ -1,0 +1,2142 @@
+--- a/scipy/odr/odrpack/d_odr.f
++++ b/scipy/odr/odrpack/d_odr.f
+@@ -713,7 +713,7 @@
+      +   (N,M,WD,LDWD,LD2WD,ALPHA,TT,LDTT,I,E)
+ C***BEGIN PROLOGUE  DESUBI
+ C***REFER TO  DODR,DODRC
+-C***ROUTINES CALLED  DZERO
++C***ROUTINES CALLED  DZERO_ODR
+ C***DATE WRITTEN   860529   (YYMMDD)
+ C***REVISION DATE  920304   (YYMMDD)
+ C***PURPOSE  COMPUTE E = WD + ALPHA*TT**2
+@@ -737,7 +737,7 @@
+ 
+ C...EXTERNAL SUBROUTINES
+       EXTERNAL
+-     +   DZERO
++     +   DZERO_ODR
+ 
+ C...DATA STATEMENTS
+       DATA
+@@ -776,7 +776,7 @@
+ 
+             IF (LD2WD.EQ.1) THEN
+ C  THE ARRAYS STORED IN WD ARE DIAGONAL
+-               CALL DZERO(M,M,E,M)
++               CALL DZERO_ODR(M,M,E,M)
+                DO 10 J=1,M
+                   E(J,J) = WD(I,1,J)
+    10          CONTINUE
+@@ -809,7 +809,7 @@
+ 
+             IF (LD2WD.EQ.1) THEN
+ C  THE ARRAY STORED IN WD IS DIAGONAL
+-               CALL DZERO(M,M,E,M)
++               CALL DZERO_ODR(M,M,E,M)
+                DO 140 J=1,M
+                   E(J,J) = WD(1,1,J)
+   140          CONTINUE
+@@ -840,7 +840,7 @@
+          END IF
+       ELSE
+ C  WD IS A DIAGONAL MATRIX WITH ELEMENTS ABS(WD(1,1,1))
+-         CALL DZERO(M,M,E,M)
++         CALL DZERO_ODR(M,M,E,M)
+          IF (TT(1,1).GT.ZERO) THEN
+             IF (LDTT.GE.N) THEN
+                DO 310 J=1,M
+@@ -1878,7 +1878,7 @@
+      +   SSFI,TTI,LDTTI,DELTAI)
+ C***BEGIN PROLOGUE  DINIWK
+ C***REFER TO  DODR,DODRC
+-C***ROUTINES CALLED  DFLAGS,DMPREC,DSCLB,DSCLD,DZERO
++C***ROUTINES CALLED  DFLAGS,DMPREC,DSCLB,DSCLD,DZERO_ODR
+ C***DATE WRITTEN   860529   (YYMMDD)
+ C***REVISION DATE  920304   (YYMMDD)
+ C***PURPOSE  INITIALIZE WORK VECTORS AS NECESSARY
+@@ -1914,7 +1914,7 @@
+ 
+ C...EXTERNAL SUBROUTINES
+       EXTERNAL
+-     +   DCOPY,DFLAGS,DSCLB,DSCLD,DZERO
++     +   DCOPY,DFLAGS,DSCLB,DSCLD,DZERO_ODR
+ 
+ C...INTRINSIC FUNCTIONS
+       INTRINSIC
+@@ -2102,13 +2102,13 @@
+ 
+       IF (ISODR) THEN
+          IF (INITD) THEN
+-            CALL DZERO(N,M,WORK(DELTAI),N)
++            CALL DZERO_ODR(N,M,WORK(DELTAI),N)
+          ELSE
+             IF (IFIXX(1,1).GE.0) THEN
+                IF (LDIFX.EQ.1) THEN
+                   DO 20 J=1,M
+                      IF (IFIXX(1,J).EQ.0) THEN
+-                        CALL DZERO(N,1,WORK(DELTAI+(J-1)*N),N)
++                        CALL DZERO_ODR(N,1,WORK(DELTAI+(J-1)*N),N)
+                      END IF
+    20             CONTINUE
+                ELSE
+@@ -2123,7 +2123,7 @@
+             END IF
+          END IF
+       ELSE
+-         CALL DZERO(N,M,WORK(DELTAI),N)
++         CALL DZERO_ODR(N,M,WORK(DELTAI),N)
+       END IF
+ 
+       RETURN
+@@ -2242,7 +2242,7 @@
+      +    FJACB,ISODR,FJACD,NFEV,ISTOP)
+ C***BEGIN PROLOGUE  DJACCD
+ C***REFER TO  DODR,DODRC
+-C***ROUTINES CALLED  FCN,DHSTEP,DZERO
++C***ROUTINES CALLED  FCN,DHSTEP,DZERO_ODR
+ C***DATE WRITTEN   860529   (YYMMDD)
+ C***REVISION DATE  920619   (YYMMDD)
+ C***PURPOSE  COMPUTE CENTRAL DIFFERENCE APPROXIMATIONS TO THE
+@@ -2278,7 +2278,7 @@
+ 
+ C...EXTERNAL SUBROUTINES
+       EXTERNAL
+-     +   DZERO
++     +   DZERO_ODR
+ 
+ C...EXTERNAL FUNCTIONS
+       DOUBLE PRECISION
+@@ -2367,7 +2367,7 @@
+          END IF
+          IF (.NOT.DOIT) THEN
+             DO 10 L=1,NQ
+-               CALL DZERO(N,1,FJACB(1,K,L),N)
++               CALL DZERO_ODR(N,1,FJACB(1,K,L),N)
+    10       CONTINUE
+          ELSE
+             BETAK = BETA(K)
+@@ -2453,7 +2453,7 @@
+             END IF
+             IF (.NOT.DOIT) THEN
+                DO 110 L=1,NQ
+-                  CALL DZERO(N,1,FJACD(1,J,L),N)
++                  CALL DZERO_ODR(N,1,FJACD(1,J,L),N)
+   110          CONTINUE
+             ELSE
+                DO 120 I=1,N
+@@ -2548,7 +2548,7 @@
+      +    FJACB,ISODR,FJACD,NFEV,ISTOP)
+ C***BEGIN PROLOGUE  DJACFD
+ C***REFER TO  DODR,DODRC
+-C***ROUTINES CALLED  FCN,DHSTEP,DZERO
++C***ROUTINES CALLED  FCN,DHSTEP,DZERO_ODR
+ C***DATE WRITTEN   860529   (YYMMDD)
+ C***REVISION DATE  920619   (YYMMDD)
+ C***PURPOSE  COMPUTE FORWARD DIFFERENCE APPROXIMATIONS TO THE
+@@ -2584,7 +2584,7 @@
+ 
+ C...EXTERNAL SUBROUTINES
+       EXTERNAL
+-     +   DZERO
++     +   DZERO_ODR
+ 
+ C...EXTERNAL FUNCTIONS
+       DOUBLE PRECISION
+@@ -2674,7 +2674,7 @@
+          END IF
+          IF (.NOT.DOIT) THEN
+             DO 10 L=1,NQ
+-               CALL DZERO(N,1,FJACB(1,K,L),N)
++               CALL DZERO_ODR(N,1,FJACB(1,K,L),N)
+    10       CONTINUE
+          ELSE
+             BETAK = BETA(K)
+@@ -2739,7 +2739,7 @@
+             END IF
+             IF (.NOT.DOIT) THEN
+                DO 110 L=1,NQ
+-                  CALL DZERO(N,1,FJACD(1,J,L),N)
++                  CALL DZERO_ODR(N,1,FJACD(1,J,L),N)
+   110          CONTINUE
+             ELSE
+                DO 120 I=1,N
+@@ -8636,7 +8636,7 @@
+ C***BEGIN PROLOGUE  DODSTP
+ C***REFER TO  DODR,DODRC
+ C***ROUTINES CALLED  IDAMAX,DCHEX,DESUBI,DFCTR,DNRM2,DQRDC,DQRSL,DROT,
+-C                    DROTG,DSOLVE,DTRCO,DTRSL,DVEVTR,DWGHT,DZERO
++C                    DROTG,DSOLVE,DTRCO,DTRSL,DVEVTR,DWGHT,DZERO_ODR
+ C***DATE WRITTEN   860529   (YYMMDD)
+ C***REVISION DATE  920619   (YYMMDD)
+ C***PURPOSE  COMPUTE LOCALLY CONSTRAINED STEPS S AND T, AND PHI(ALPHA)
+@@ -8682,7 +8682,7 @@
+ C...EXTERNAL SUBROUTINES
+       EXTERNAL
+      +   DCHEX,DESUBI,DFCTR,DQRDC,DQRSL,DROT,DROTG,
+-     +   DSOLVE,DTRCO,DTRSL,DVEVTR,DWGHT,DZERO
++     +   DSOLVE,DTRCO,DTRSL,DVEVTR,DWGHT,DZERO_ODR
+ 
+ C...INTRINSIC FUNCTIONS
+       INTRINSIC
+@@ -8898,9 +8898,9 @@
+ C  ELIMINATE ALPHA PART USING GIVENS ROTATIONS
+ 
+       IF (ALPHA.NE.ZERO) THEN
+-         CALL DZERO(NPP,1,S,NPP)
++         CALL DZERO_ODR(NPP,1,S,NPP)
+          DO 430 K1=1,KP
+-            CALL DZERO(KP,1,WRK3,KP)
++            CALL DZERO_ODR(KP,1,WRK3,KP)
+             WRK3(K1) = SQRT(ALPHA)
+             DO 420 K2=K1,KP
+                CALL DROTG(TFJACB(K2,1,K2),WRK3(K2),CO,SI)
+@@ -10932,16 +10932,16 @@
+ 
+       RETURN
+       END
+-*DZERO
+-      SUBROUTINE DZERO
++*DZERO_ODR
++      SUBROUTINE DZERO_ODR
+      +   (N,M,A,LDA)
+-C***BEGIN PROLOGUE  DZERO
++C***BEGIN PROLOGUE  DZERO_ODR
+ C***REFER TO  DODR,DODRC
+ C***ROUTINES CALLED  (NONE)
+ C***DATE WRITTEN   860529   (YYMMDD)
+ C***REVISION DATE  920304   (YYMMDD)
+ C***PURPOSE  SET A = ZERO
+-C***END PROLOGUE  DZERO
++C***END PROLOGUE  DZERO_ODR
+ 
+ C...SCALAR ARGUMENTS
+       INTEGER
+@@ -10972,7 +10972,7 @@
+ C   ZERO:    THE VALUE 0.0D0.
+ 
+ 
+-C***FIRST EXECUTABLE STATEMENT  DZERO
++C***FIRST EXECUTABLE STATEMENT  DZERO_ODR
+ 
+ 
+       DO 20 J=1,M
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex16/dblasext.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex16/dblasext.F
+@@ -3,7 +3,7 @@
+ c
+ 
+ #ifdef _OPENMP
+-      double precision function pdnrm2(n, x, incx)
++      double precision function pz06(n, x, incx)
+       implicit none
+       integer n, incx
+       double precision x(*)
+@@ -24,9 +24,9 @@
+                sum = sum + x(1+(i-1)*incx)**2
+             enddo
+          endif
+-         pdnrm2 = sqrt(sum)
++         pz06 = sqrt(sum)
+       else
+-         pdnrm2 = 0d0
++         pz06 = 0d0
+       endif   
+       return
+       end
+@@ -35,7 +35,7 @@
+ c 
+       
+ 
+-      subroutine pdscal(n, alpha, x , incx)
++      subroutine pz03(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       double precision alpha,x(*)
+@@ -63,7 +63,7 @@
+ c 
+          
+ 
+-      subroutine pdcopy(n, x , incx, y, incy)
++      subroutine pz04(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*)
+@@ -89,7 +89,7 @@
+ c
+ c****************************************************************************
+ c 
+-      subroutine pdaxpy(n, alpha, x , incx, y, incy)
++      subroutine pz0a(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision alpha,x(*),y(*)
+@@ -118,7 +118,7 @@
+ c 
+      
+          
+-      double precision function pddot(n, x , incx, y, incy)
++      double precision function pz0b(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*)
+@@ -141,9 +141,9 @@
+                sum = sum + x(1+(i-1)*incx) * y(1+(i-1)*incy)
+             enddo
+          endif
+-         pddot = sum
++         pz0b = sum
+       else
+-         pddot = 0d0
++         pz0b = 0d0
+       endif   
+       return
+       end
+@@ -151,16 +151,16 @@
+ 
+ #else
+ 
+-      double precision function pdnrm2(n, x, incx)
++      double precision function pz06(n, x, incx)
+       implicit none
+       integer n, incx
+       double precision x(*), dnrm2
+       external dnrm2
+ 
+-      pdnrm2 = dnrm2(n, x, incx)
+-      end
+-
+-      subroutine pdscal(n, alpha, x , incx)
++      pz06 = dnrm2(n, x, incx)
++      end
++
++      subroutine pz03(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       double precision alpha,x(*)
+@@ -168,7 +168,7 @@
+       call dscal(n, alpha, x , incx)
+       end
+ 
+-      subroutine pdcopy(n, x , incx, y, incy)
++      subroutine pz04(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*)
+@@ -176,7 +176,7 @@
+       call dcopy(n, x , incx, y, incy)
+       end
+ 
+-      subroutine pdaxpy(n, alpha, x , incx, y, incy)
++      subroutine pz0a(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision alpha,x(*),y(*)
+@@ -185,13 +185,13 @@
+       end
+ 
+       
+-      double precision function pddot(n, x , incx, y, incy)
++      double precision function pz0b(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*),ddot
+       external ddot
+       
+-      pddot = ddot(n, x , incx, y, incy)
++      pz0b = ddot(n, x , incx, y, incy)
+       end
+ #endif
+ 
+@@ -199,7 +199,7 @@
+ c****************************************************************************
+ c 
+          
+-      subroutine pdzero(n, x , incx)
++      subroutine pz09(n, x , incx)
+       implicit none
+       integer n, incx
+       double precision x(*)
+@@ -227,7 +227,7 @@
+       end
+ 
+ 
+-      subroutine pizero(n, x , incx)
++      subroutine pz05(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*)
+@@ -255,7 +255,7 @@
+       end
+ 
+ 
+-      subroutine pdset(n, alpha, x , incx)
++      subroutine pz07(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       double precision alpha,x(*)
+@@ -284,7 +284,7 @@
+ 
+ 
+   
+-      subroutine pdaxpby(n,alpha,x,incx,beta,y,incy)
++      subroutine pz02(n,alpha,x,incx,beta,y,incy)
+ c
+ c     Y = alpha*X + beta*Y
+ c     
+@@ -315,12 +315,12 @@
+          
+       else if (alpha.eq.zero .and. beta.ne.zero) then
+          
+-         call pdscal(n,beta,y,incy)
++         call pz03(n,beta,y,incy)
+ 
+       else if (alpha.ne.zero .and. beta.eq.zero) then
+ 
+          if (alpha.eq.one) then
+-            call pdcopy(n,x,incx,y,incy)
++            call pz04(n,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -344,7 +344,7 @@
+ 
+          if (beta.eq.one) then
+ c DAXPY
+-            call pdaxpy(n,alpha,x,incx,y,incy)
++            call pz0a(n,alpha,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -371,7 +371,7 @@
+ 
+ 
+ 
+-      subroutine pdaxty(n,alpha,x,incx,y,incy)
++      subroutine pz00(n,alpha,x,incx,y,incy)
+ c
+ c     Y = alpha*X*Y
+ c     
+@@ -445,7 +445,7 @@
+ 
+ 
+ 
+-      subroutine szero(n, x , incx)
++      subroutine pz08(n, x , incx)
+       implicit none
+       integer n, incx
+       real x(*),zero
+@@ -467,7 +467,7 @@
+       end
+ 
+                  
+-      subroutine dzero(n, x , incx)
++      subroutine pz0c(n, x , incx)
+       implicit none
+       integer n, incx
+       double precision x(*),zero
+@@ -489,7 +489,7 @@
+       end
+ 
+ 
+-      subroutine izero(n, x , incx)
++      subroutine pz01(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*),zero
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex16/printstat.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex16/printstat.F
+@@ -62,7 +62,7 @@
+ c      print *,'Time spent on local reorth. on U_{j+1}      = ',telru
+ c      print *,'Time spent on local reorth. on V_{j+1}      = ',telrv
+ c      print *,'Time spent in PDNORM2                       = ',tnorm2
+-c      print *,'Time spent in PDDOT                         = ',tdot
++c      print *,'Time spent in pz0b                         = ',tdot
+       print *
+       print *,'  Time spent in LANBPRO                     = ',tlanbpro
+       print *,'  Time spent computing bidiagonal SVDs      = ',tbsvd
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex16/zlanbpro.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex16/zlanbpro.F
+@@ -131,16 +131,16 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external dzero,izero,pdcopy,pzaxpy
++      external pz0c,pz01,pz04,pzaxpy
+       external zgetu0,zreorth,zsafescal,zzero,pzcopy,pzdaxpy
+-      external dcompute_int,dupdate_nu,dupdate_mu
++      external dcompute_ic16,dupdate_nu_c16,dupdate_mu_c16
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+-      double precision dlamch,pdnrm2,pddot,dlapy2,pdznrm2
++      double precision dlamch,pz06,pz0b,dlapy2,pdznrm2
+       complex*16 pzdotc
+-      external pdnrm2,pddot,pdznrm2,pzdotc
++      external pz06,pz0b,pdznrm2,pzdotc
+       external dlamch,dlapy2
+ 
+ c-------------------- Here begins executable code ---------------------
+@@ -202,8 +202,8 @@
+       inu = imu+k+1
+       iidx = 1
+       is = 1
+-      call pdzero(2*k+2,dwork,1)
+-      call pizero(2*k+1,iwork,1)
++      call pz09(2*k+2,dwork,1)
++      call pz05(2*k+1,iwork,1)
+       call pzzero(max(m,n),zwork,1)
+ 
+ c     %---------------------------%
+@@ -254,8 +254,8 @@
+          call zreorth(m,k0,U,ldu,U(1,k0+1),rnorm,iwork(iidx),kappa,
+      c        zwork(is),ioption(1))
+          call zsafescal(m,rnorm,U(1,k0+1))
+-         call dset_mu(k0,dwork(imu),iwork(iidx),epsn2)         
+-         call dset_mu(k0,dwork(inu),iwork(iidx),epsn2)         
++         call dset_mu_c16(k0,dwork(imu),iwork(iidx),epsn2)         
++         call dset_mu_c16(k0,dwork(inu),iwork(iidx),epsn2)         
+          beta = rnorm
+ 
+ c     %--------------------------------------%
+@@ -354,7 +354,7 @@
+ c     | Update the nu recurrence |
+ c     %--------------------------%
+          if (.not.full_reorth .and. alpha.ne.zero) then
+-            call dupdate_nu(numax,dwork(imu),dwork(inu),j,
++            call dupdate_nu_c16(numax,dwork(imu),dwork(inu),j,
+      c           B(1,1),B(1,2),anorm,epsn2)
+          endif
+ 
+@@ -369,12 +369,12 @@
+                iwork(iidx+1) = j-1
+                iwork(iidx+2) = j
+             else if (.not. force_reorth) then
+-               call dcompute_int(dwork(inu),j-1,delta,eta,iwork(iidx))
++               call dcompute_ic16(dwork(inu),j-1,delta,eta,iwork(iidx))
+             endif
+             call zreorth(n,j-1,V,ldv,V(1,j),alpha,iwork(iidx),
+      c           kappa,zwork(is),ioption(1))
+ 
+-            call dset_mu(j-1,dwork(inu),iwork(iidx),eps)
++            call dset_mu_c16(j-1,dwork(inu),iwork(iidx),eps)
+             numax = eta
+             if (force_reorth) then
+                force_reorth = .false.
+@@ -484,7 +484,7 @@
+ c     | Update the mu recurrence |
+ c     %--------------------------%
+          if (.not.full_reorth .and. beta.ne.zero) then
+-            call dupdate_mu(mumax,dwork(imu),dwork(inu),j,B(1,1),
++            call dupdate_mu_c16(mumax,dwork(imu),dwork(inu),j,B(1,1),
+      c           B(1,2),anorm,epsn2)
+          endif
+ 
+@@ -498,7 +498,7 @@
+                iwork(iidx+1) = j
+                iwork(iidx+2) = j+1
+             else if (.not. force_reorth) then
+-               call dcompute_int(dwork(imu),j,delta,eta,iwork(iidx))
++               call dcompute_ic16(dwork(imu),j,delta,eta,iwork(iidx))
+             else
+                do i=1,2*j+1
+                   if (iwork(iidx+i-1).eq.j) then
+@@ -511,7 +511,7 @@
+  25         call zreorth(m,j,U,ldu,U(1,j+1),beta,iwork(iidx),
+      c              kappa, zwork(is),ioption(1))
+ 
+-            call dset_mu(j,dwork(imu),iwork(iidx),eps)
++            call dset_mu_c16(j,dwork(imu),iwork(iidx),eps)
+             mumax = eta
+             if (force_reorth) then
+                force_reorth = .false.
+@@ -575,7 +575,7 @@
+ c**********************************************************************
+ c
+ 
+-      subroutine dset_mu(k,mu,index,val)
++      subroutine dset_mu_c16(k,mu,index,val)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+@@ -601,7 +601,7 @@
+ c
+ c**********************************************************************
+ c
+-      subroutine dcompute_int(mu,j,delta,eta,index)
++      subroutine dcompute_ic16(mu,j,delta,eta,index)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+@@ -617,7 +617,7 @@
+       integer i,k,s,ip
+ 
+       if (delta.lt.eta) then
+-         write (*,*) 'Warning delta<eta in dcompute_int'
++         write (*,*) 'Warning delta<eta in dcompute_ic16'
+          return
+       endif
+ 
+@@ -648,7 +648,7 @@
+ c
+ c**********************************************************************
+ c
+-      subroutine dupdate_mu(mumax,mu,nu,j,alpha,beta,anorm,eps1)
++      subroutine dupdate_mu_c16(mumax,mu,nu,j,alpha,beta,anorm,eps1)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+@@ -704,7 +704,7 @@
+ c**********************************************************************
+ c
+ 
+-      subroutine dupdate_nu(numax,mu,nu,j,alpha,beta,anorm,eps1)
++      subroutine dupdate_nu_c16(numax,mu,nu,j,alpha,beta,anorm,eps1)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex16/zlansvd.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex16/zlansvd.F
+@@ -122,7 +122,7 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external dzero,izero,dcopy,dbdsqr
++      external pz0c,pz01,dcopy,dbdsqr
+       external zzero,zcopy
+       
+ c     %--------------------%
+@@ -162,7 +162,7 @@
+       iq = ip + (lanmax+1)**2
+       iwrk = iq + lanmax**2
+       lwrk = lwork-iwrk+1
+-      call dzero(7*lanmax + 2 + 2*lanmax**2,work,1)
++      call pz0c(7*lanmax + 2 + 2*lanmax**2,work,1)
+       call zzero(lzwrk,zwork,1)
+ 
+ c     %---------------------------------------------------------------%
+@@ -201,7 +201,7 @@
+ c     | Compute and analyze SVD(B) and error bounds |
+ c     %---------------------------------------------%
+          call dcopy(2*lanmax, work(ib),1,work(ib1),1)
+-         call dzero(j+1,work(ibnd),1)
++         call pz0c(j+1,work(ibnd),1)
+          
+          call dbdqr((j.eq.min(m,n)),'N',j,work(ib1),work(ib1+lanmax),
+      c        work(ibnd+j-1),work(ibnd+j),work(ip),lanmax+1)
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex16/zlansvd_irl.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex16/zlansvd_irl.F
+@@ -140,7 +140,7 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external dzero,izero,dcopy,daxpy,dbdsqr
++      external pz0c,pz01,dcopy,daxpy,dbdsqr
+       
+ c     %--------------------%
+ c     | External Functions |
+@@ -187,7 +187,7 @@
+       iq = ip + (dim+1)**2
+       iwrk = iq + dim**2
+       lwrk = lwork-iwrk+1
+-      call dzero(8*dim + 3 + 2*dim**2,work,1)
++      call pz0c(8*dim + 3 + 2*dim**2,work,1)
+ 
+ c     %---------------------------------------------------------------%
+ c     | Set up random starting vector if none is provided by the user |
+@@ -221,7 +221,7 @@
+ c     %---------------------------------------------%
+          call dcopy(dim, work(ialpha),1,work(ialpha1),1)
+          call dcopy(dim, work(ibeta),1,work(ibeta1),1)
+-         call dzero(dim+1,work(ibnd),1)
++         call pz0c(dim+1,work(ibnd),1)
+ 
+          call dbdqr((dim.eq.min(m,n)),'N',dim,work(ialpha1),
+      c        work(ibeta1),work(ibnd+dim-1),work(ibnd+dim),
+@@ -317,7 +317,7 @@
+ c     | We use exact shifts mu_i for which the relative gap between mu_i    |
+ c     | and the lower bound on the k'th Ritzvalue is larger than doption(4) |
+ c     %---------------------------------------------------------------------%
+-            call dzero(dim-k,work(ishift),1)
++            call pz0c(dim-k,work(ishift),1)
+             nshft = 0
+             if (lsame(which,'s')) then
+                do i=1,k
+@@ -349,8 +349,8 @@
+ c     | Apply shifts and accumulate rotations such that  |
+ c     |   B_{dim}^{+} = P * B_{dim} * Q^T                |
+ c     %--------------------------------------------------%
+-            call dzero((dim+1)*(dim+1),work(ip),1)
+-            call dzero(dim*dim,work(iq),1)
++            call pz0c((dim+1)*(dim+1),work(ip),1)
++            call pz0c(dim*dim,work(iq),1)
+             do i=1,dim+1
+                work(ip+(i-1)*(dim+2)) = one
+             enddo
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex8/clanbpro.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex8/clanbpro.F
+@@ -132,16 +132,16 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external szero,izero,pscopy,pcaxpy
++      external pc08,pc01,pc23,pcaxpy
+       external cgetu0,creorth,csafescal,czero,pccopy,pcsaxpy
+-      external scompute_int,supdate_nu,supdate_mu
++      external scompute_ic8,supdate_nu_c8,supdate_mu_c8
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+-      real slamch,psnrm2,psdot,slapy2,pscnrm2
++      real slamch,pc24,pc28,slapy2,pscnrm2
+       complex pcdotc
+-      external psnrm2,psdot,pscnrm2,pcdotc
++      external pc24,pc28,pscnrm2,pcdotc
+       external slamch,slapy2
+ 
+ c-------------------- Here begins executable code ---------------------
+@@ -203,8 +203,8 @@
+       inu = imu+k+1
+       iidx = 1
+       is = 1
+-      call pszero(2*k+2,swork,1)
+-      call pizero(2*k+1,iwork,1)
++      call pc26(2*k+2,swork,1)
++      call pc05(2*k+1,iwork,1)
+       call pczero(max(m,n),cwork,1)
+ 
+ c     %---------------------------%
+@@ -255,8 +255,8 @@
+          call creorth(m,k0,U,ldu,U(1,k0+1),rnorm,iwork(iidx),kappa,
+      c        cwork(is),ioption(1))
+          call csafescal(m,rnorm,U(1,k0+1))
+-         call sset_mu(k0,swork(imu),iwork(iidx),epsn2)         
+-         call sset_mu(k0,swork(inu),iwork(iidx),epsn2)         
++         call sset_mu_c8(k0,swork(imu),iwork(iidx),epsn2)         
++         call sset_mu_c8(k0,swork(inu),iwork(iidx),epsn2)         
+          beta = rnorm
+ 
+ c     %--------------------------------------%
+@@ -354,7 +354,7 @@
+ c     | Update the nu recurrence |
+ c     %--------------------------%
+          if (.not.full_reorth .and. alpha.ne.zero) then
+-            call supdate_nu(numax,swork(imu),swork(inu),j,
++            call supdate_nu_c8(numax,swork(imu),swork(inu),j,
+      c           B(1,1),B(1,2),anorm,epsn2)
+          endif
+ 
+@@ -369,12 +369,12 @@
+                iwork(iidx+1) = j-1
+                iwork(iidx+2) = j
+             else if (.not. force_reorth) then
+-               call scompute_int(swork(inu),j-1,delta,eta,iwork(iidx))
++               call scompute_ic8(swork(inu),j-1,delta,eta,iwork(iidx))
+             endif
+             call creorth(n,j-1,V,ldv,V(1,j),alpha,iwork(iidx),
+      c           kappa,cwork(is),ioption(1))
+ 
+-            call sset_mu(j-1,swork(inu),iwork(iidx),eps)
++            call sset_mu_c8(j-1,swork(inu),iwork(iidx),eps)
+             numax = eta
+             if (force_reorth) then
+                force_reorth = .false.
+@@ -483,7 +483,7 @@
+ c     | Update the mu recurrence |
+ c     %--------------------------%
+          if (.not.full_reorth .and. beta.ne.zero) then
+-            call supdate_mu(mumax,swork(imu),swork(inu),j,B(1,1),
++            call supdate_mu_c8(mumax,swork(imu),swork(inu),j,B(1,1),
+      c           B(1,2),anorm,epsn2)
+          endif
+ 
+@@ -497,7 +497,7 @@
+                iwork(iidx+1) = j
+                iwork(iidx+2) = j+1
+             else if (.not. force_reorth) then
+-               call scompute_int(swork(imu),j,delta,eta,iwork(iidx))
++               call scompute_ic8(swork(imu),j,delta,eta,iwork(iidx))
+             else
+                do i=1,2*j+1
+                   if (iwork(iidx+i-1).eq.j) then
+@@ -510,7 +510,7 @@
+  25         call creorth(m,j,U,ldu,U(1,j+1),beta,iwork(iidx),
+      c              kappa, cwork(is),ioption(1))
+ 
+-            call sset_mu(j,swork(imu),iwork(iidx),eps)
++            call sset_mu_c8(j,swork(imu),iwork(iidx),eps)
+             mumax = eta
+             if (force_reorth) then
+                force_reorth = .false.
+@@ -574,7 +574,7 @@
+ c**********************************************************************
+ c
+ 
+-      subroutine sset_mu(k,mu,index,val)
++      subroutine sset_mu_c8(k,mu,index,val)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+@@ -600,7 +600,7 @@
+ c
+ c**********************************************************************
+ c
+-      subroutine scompute_int(mu,j,delta,eta,index)
++      subroutine scompute_ic8(mu,j,delta,eta,index)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+@@ -616,7 +616,7 @@
+       integer i,k,s,ip
+ 
+       if (delta.lt.eta) then
+-         write (*,*) 'Warning delta<eta in scompute_int'
++         write (*,*) 'Warning delta<eta in scompute_ic8'
+          return
+       endif
+ 
+@@ -647,7 +647,7 @@
+ c
+ c**********************************************************************
+ c
+-      subroutine supdate_mu(mumax,mu,nu,j,alpha,beta,anorm,eps1)
++      subroutine supdate_mu_c8(mumax,mu,nu,j,alpha,beta,anorm,eps1)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+@@ -703,7 +703,7 @@
+ c**********************************************************************
+ c
+ 
+-      subroutine supdate_nu(numax,mu,nu,j,alpha,beta,anorm,eps1)
++      subroutine supdate_nu_c8(numax,mu,nu,j,alpha,beta,anorm,eps1)
+ c     %-----------%
+ c     | Arguments |
+ c     %-----------%
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex8/clansvd.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex8/clansvd.F
+@@ -123,7 +123,7 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external szero,izero,scopy,sbdsqr
++      external pc08,pc01,scopy,sbdsqr
+       external czero,ccopy
+       
+ c     %--------------------%
+@@ -163,7 +163,7 @@
+       iq = ip + (lanmax+1)**2
+       iwrk = iq + lanmax**2
+       lwrk = lwork-iwrk+1
+-      call szero(7*lanmax + 2 + 2*lanmax**2,work,1)
++      call pc08(7*lanmax + 2 + 2*lanmax**2,work,1)
+       call czero(lcwrk,cwork,1)
+ 
+ c     %---------------------------------------------------------------%
+@@ -202,7 +202,7 @@
+ c     | Compute and analyze SVD(B) and error bounds |
+ c     %---------------------------------------------%
+          call scopy(2*lanmax, work(ib),1,work(ib1),1)
+-         call szero(j+1,work(ibnd),1)
++         call pc08(j+1,work(ibnd),1)
+          
+          call sbdqr((j.eq.min(m,n)),'N',j,work(ib1),work(ib1+lanmax),
+      c        work(ibnd+j-1),work(ibnd+j),work(ip),lanmax+1)
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex8/clansvd_irl.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex8/clansvd_irl.F
+@@ -141,7 +141,7 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external szero,izero,scopy,sbdsqr
++      external pc08,pc01,scopy,sbdsqr
+       
+ c     %--------------------%
+ c     | External Functions |
+@@ -188,7 +188,7 @@
+       iq = ip + (dim+1)**2
+       iwrk = iq + dim**2
+       lwrk = lwork-iwrk+1
+-      call szero(8*dim + 3 + 2*dim**2,work,1)
++      call pc08(8*dim + 3 + 2*dim**2,work,1)
+ 
+ c     %---------------------------------------------------------------%
+ c     | Set up random starting vector if none is provided by the user |
+@@ -222,7 +222,7 @@
+ c     %---------------------------------------------%
+          call scopy(dim, work(ialpha),1,work(ialpha1),1)
+          call scopy(dim, work(ibeta),1,work(ibeta1),1)
+-         call szero(dim+1,work(ibnd),1)
++         call pc08(dim+1,work(ibnd),1)
+ 
+          call sbdqr((dim.eq.min(m,n)),'N',dim,work(ialpha1),
+      c        work(ibeta1),work(ibnd+dim-1),work(ibnd+dim),
+@@ -318,7 +318,7 @@
+ c     | We use exact shifts mu_i for which the relative gap between mu_i    |
+ c     | and the lower bound on the k'th Ritzvalue is larger than soption(4) |
+ c     %---------------------------------------------------------------------%
+-            call szero(dim-k,work(ishift),1)
++            call pc08(dim-k,work(ishift),1)
+             nshft = 0
+             if (lsame(which,'s')) then
+                do i=1,k
+@@ -350,8 +350,8 @@
+ c     | Apply shifts and accumulate rotations such that  |
+ c     |   B_{dim}^{+} = P * B_{dim} * Q^T                |
+ c     %--------------------------------------------------%
+-            call szero((dim+1)*(dim+1),work(ip),1)
+-            call szero(dim*dim,work(iq),1)
++            call pc08((dim+1)*(dim+1),work(ip),1)
++            call pc08(dim*dim,work(iq),1)
+             do i=1,dim+1
+                work(ip+(i-1)*(dim+2)) = one
+             enddo
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex8/printstat.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex8/printstat.F
+@@ -62,7 +62,7 @@
+ c      print *,'Time spent on local reorth. on U_{j+1}      = ',telru
+ c      print *,'Time spent on local reorth. on V_{j+1}      = ',telrv
+ c      print *,'Time spent in PDNORM2                       = ',tnorm2
+-c      print *,'Time spent in PDDOT                         = ',tdot
++c      print *,'Time spent in pc0b                         = ',tdot
+       print *
+       print *,'  Time spent in LANBPRO                     = ',tlanbpro
+       print *,'  Time spent computing bidiagonal SVDs      = ',tbsvd
+--- a/scipy/sparse/linalg/_propack/PROPACK/complex8/sblasext.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/complex8/sblasext.F
+@@ -3,7 +3,7 @@
+ c
+ 
+ #ifdef _OPENMP
+-      real function psnrm2(n, x, incx)
++      real function pc24(n, x, incx)
+       implicit none
+       integer n, incx
+       real x(*)
+@@ -24,9 +24,9 @@
+                sum = sum + x(1+(i-1)*incx)**2
+             enddo
+          endif
+-         psnrm2 = sqrt(sum)
++         pc24 = sqrt(sum)
+       else
+-         psnrm2 = 0.0
++         pc24 = 0.0
+       endif   
+       return
+       end
+@@ -35,7 +35,7 @@
+ c 
+       
+ 
+-      subroutine psscal(n, alpha, x , incx)
++      subroutine pc22(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       real alpha,x(*)
+@@ -63,7 +63,7 @@
+ c 
+          
+ 
+-      subroutine pscopy(n, x , incx, y, incy)
++      subroutine pc23(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*)
+@@ -89,7 +89,7 @@
+ c
+ c****************************************************************************
+ c 
+-      subroutine psaxpy(n, alpha, x , incx, y, incy)
++      subroutine pc27(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real alpha,x(*),y(*)
+@@ -118,7 +118,7 @@
+ c 
+      
+          
+-      real function psdot(n, x , incx, y, incy)
++      real function pc28(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*)
+@@ -141,9 +141,9 @@
+                sum = sum + x(1+(i-1)*incx) * y(1+(i-1)*incy)
+             enddo
+          endif
+-         psdot = sum
++         pc28 = sum
+       else
+-         psdot = 0.0
++         pc28 = 0.0
+       endif   
+       return
+       end
+@@ -151,16 +151,16 @@
+ 
+ #else
+ 
+-      real function psnrm2(n, x, incx)
++      real function pc24(n, x, incx)
+       implicit none
+       integer n, incx
+       real x(*), snrm2
+       external snrm2
+ 
+-      psnrm2 = snrm2(n, x, incx)
+-      end
+-
+-      subroutine psscal(n, alpha, x , incx)
++      pc24 = snrm2(n, x, incx)
++      end
++
++      subroutine pc22(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       real alpha,x(*)
+@@ -168,7 +168,7 @@
+       call sscal(n, alpha, x , incx)
+       end
+ 
+-      subroutine pscopy(n, x , incx, y, incy)
++      subroutine pc23(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*)
+@@ -176,7 +176,7 @@
+       call scopy(n, x , incx, y, incy)
+       end
+ 
+-      subroutine psaxpy(n, alpha, x , incx, y, incy)
++      subroutine pc27(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real alpha,x(*),y(*)
+@@ -185,13 +185,13 @@
+       end
+ 
+       
+-      real function psdot(n, x , incx, y, incy)
++      real function pc28(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*),sdot
+       external sdot
+       
+-      psdot = sdot(n, x , incx, y, incy)
++      pc28 = sdot(n, x , incx, y, incy)
+       end
+ #endif
+ 
+@@ -199,7 +199,7 @@
+ c****************************************************************************
+ c 
+          
+-      subroutine pszero(n, x , incx)
++      subroutine pc26(n, x , incx)
+       implicit none
+       integer n, incx
+       real x(*)
+@@ -227,7 +227,7 @@
+       end
+ 
+ 
+-      subroutine pizero(n, x , incx)
++      subroutine pc05(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*)
+@@ -255,7 +255,7 @@
+       end
+ 
+ 
+-      subroutine psset(n, alpha, x , incx)
++      subroutine pc25(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       real alpha,x(*)
+@@ -284,7 +284,7 @@
+ 
+ 
+   
+-      subroutine psaxpby(n,alpha,x,incx,beta,y,incy)
++      subroutine pc21(n,alpha,x,incx,beta,y,incy)
+ c
+ c     Y = alpha*X + beta*Y
+ c     
+@@ -315,12 +315,12 @@
+          
+       else if (alpha.eq.zero .and. beta.ne.zero) then
+          
+-         call psscal(n,beta,y,incy)
++         call pc22(n,beta,y,incy)
+ 
+       else if (alpha.ne.zero .and. beta.eq.zero) then
+ 
+          if (alpha.eq.one) then
+-            call pscopy(n,x,incx,y,incy)
++            call pc23(n,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -344,7 +344,7 @@
+ 
+          if (beta.eq.one) then
+ c DAXPY
+-            call psaxpy(n,alpha,x,incx,y,incy)
++            call pc27(n,alpha,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -371,7 +371,7 @@
+ 
+ 
+ 
+-      subroutine psaxty(n,alpha,x,incx,y,incy)
++      subroutine pc20(n,alpha,x,incx,y,incy)
+ c
+ c     Y = alpha*X*Y
+ c     
+@@ -445,7 +445,7 @@
+ 
+ 
+ 
+-      subroutine szero(n, x , incx)
++      subroutine pc08(n, x , incx)
+       implicit none
+       integer n, incx
+       real x(*),zero
+@@ -467,7 +467,7 @@
+       end
+ 
+                  
+-      subroutine dzero(n, x , incx)
++      subroutine pc0c(n, x , incx)
+       implicit none
+       integer n, incx
+       double precision x(*),zero
+@@ -489,7 +489,7 @@
+       end
+ 
+ 
+-      subroutine izero(n, x , incx)
++      subroutine pc01(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*),zero
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dblasext.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dblasext.F
+@@ -3,7 +3,7 @@
+ c
+ 
+ #ifdef _OPENMP
+-      double precision function pdnrm2(n, x, incx)
++      double precision function pd06(n, x, incx)
+       implicit none
+       integer n, incx
+       double precision x(*)
+@@ -24,9 +24,9 @@
+                sum = sum + x(1+(i-1)*incx)**2
+             enddo
+          endif
+-         pdnrm2 = sqrt(sum)
++         pd06 = sqrt(sum)
+       else
+-         pdnrm2 = 0d0
++         pd06 = 0d0
+       endif   
+       return
+       end
+@@ -35,7 +35,7 @@
+ c 
+       
+ 
+-      subroutine pdscal(n, alpha, x , incx)
++      subroutine pd03(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       double precision alpha,x(*)
+@@ -63,7 +63,7 @@
+ c 
+          
+ 
+-      subroutine pdcopy(n, x , incx, y, incy)
++      subroutine pd04(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*)
+@@ -89,7 +89,7 @@
+ c
+ c****************************************************************************
+ c 
+-      subroutine pdaxpy(n, alpha, x , incx, y, incy)
++      subroutine pd0a(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision alpha,x(*),y(*)
+@@ -118,7 +118,7 @@
+ c 
+      
+          
+-      double precision function pddot(n, x , incx, y, incy)
++      double precision function pd0b(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*)
+@@ -141,9 +141,9 @@
+                sum = sum + x(1+(i-1)*incx) * y(1+(i-1)*incy)
+             enddo
+          endif
+-         pddot = sum
++         pd0b = sum
+       else
+-         pddot = 0d0
++         pd0b = 0d0
+       endif   
+       return
+       end
+@@ -151,16 +151,16 @@
+ 
+ #else
+ 
+-      double precision function pdnrm2(n, x, incx)
++      double precision function pd06(n, x, incx)
+       implicit none
+       integer n, incx
+       double precision x(*), dnrm2
+       external dnrm2
+ 
+-      pdnrm2 = dnrm2(n, x, incx)
+-      end
+-
+-      subroutine pdscal(n, alpha, x , incx)
++      pd06 = dnrm2(n, x, incx)
++      end
++
++      subroutine pd03(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       double precision alpha,x(*)
+@@ -168,7 +168,7 @@
+       call dscal(n, alpha, x , incx)
+       end
+ 
+-      subroutine pdcopy(n, x , incx, y, incy)
++      subroutine pd04(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*)
+@@ -176,7 +176,7 @@
+       call dcopy(n, x , incx, y, incy)
+       end
+ 
+-      subroutine pdaxpy(n, alpha, x , incx, y, incy)
++      subroutine pd0a(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision alpha,x(*),y(*)
+@@ -185,13 +185,13 @@
+       end
+ 
+       
+-      double precision function pddot(n, x , incx, y, incy)
++      double precision function pd0b(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       double precision x(*),y(*),ddot
+       external ddot
+       
+-      pddot = ddot(n, x , incx, y, incy)
++      pd0b = ddot(n, x , incx, y, incy)
+       end
+ #endif
+ 
+@@ -199,7 +199,7 @@
+ c****************************************************************************
+ c 
+          
+-      subroutine pdzero(n, x , incx)
++      subroutine pd09(n, x , incx)
+       implicit none
+       integer n, incx
+       double precision x(*)
+@@ -227,7 +227,7 @@
+       end
+ 
+ 
+-      subroutine pizero(n, x , incx)
++      subroutine pizero_d(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*)
+@@ -255,7 +255,7 @@
+       end
+ 
+ 
+-      subroutine pdset(n, alpha, x , incx)
++      subroutine pd07(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       double precision alpha,x(*)
+@@ -284,7 +284,7 @@
+ 
+ 
+   
+-      subroutine pdaxpby(n,alpha,x,incx,beta,y,incy)
++      subroutine pd02(n,alpha,x,incx,beta,y,incy)
+ c
+ c     Y = alpha*X + beta*Y
+ c     
+@@ -315,12 +315,12 @@
+          
+       else if (alpha.eq.zero .and. beta.ne.zero) then
+          
+-         call pdscal(n,beta,y,incy)
++         call pd03(n,beta,y,incy)
+ 
+       else if (alpha.ne.zero .and. beta.eq.zero) then
+ 
+          if (alpha.eq.one) then
+-            call pdcopy(n,x,incx,y,incy)
++            call pd04(n,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -344,7 +344,7 @@
+ 
+          if (beta.eq.one) then
+ c DAXPY
+-            call pdaxpy(n,alpha,x,incx,y,incy)
++            call pd0a(n,alpha,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -371,7 +371,7 @@
+ 
+ 
+ 
+-      subroutine pdaxty(n,alpha,x,incx,y,incy)
++      subroutine pd00(n,alpha,x,incx,y,incy)
+ c
+ c     Y = alpha*X*Y
+ c     
+@@ -445,7 +445,7 @@
+ 
+ 
+ 
+-      subroutine szero(n, x , incx)
++      subroutine szero_d(n, x , incx)
+       implicit none
+       integer n, incx
+       real x(*),zero
+@@ -467,7 +467,7 @@
+       end
+ 
+                  
+-      subroutine dzero(n, x , incx)
++      subroutine pd0c(n, x , incx)
+       implicit none
+       integer n, incx
+       double precision x(*),zero
+@@ -489,7 +489,7 @@
+       end
+ 
+ 
+-      subroutine izero(n, x , incx)
++      subroutine izero_d(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*),zero
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dgetu0.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dgetu0.F
+@@ -39,8 +39,8 @@
+ c     | External Functions |
+ c     %--------------------%
+       logical lsame
+-      double precision pdnrm2,rand
+-      external pdnrm2,lsame,rand
++      double precision pd06,rand
++      external pd06,lsame,rand
+ 
+ c-------------------- Here begins executable code ---------------------
+ 
+@@ -67,11 +67,11 @@
+       ierr = 0
+       do itry=1,ntry
+          call dlarnv(idist, iseed, rsize, work)
+-         nrm = pdnrm2(rsize,work,1)
++         nrm = pd06(rsize,work,1)
+          call aprod(transa,m,n,work,u0,dparm,iparm)
+          nopx = nopx+1
+ 
+-         u0norm = pdnrm2(usize,u0,1)
++         u0norm = pd06(usize,u0,1)
+          anormest = u0norm/nrm
+          
+          if (j.ge.1) then
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dlanbpro.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dlanbpro.F
+@@ -128,14 +128,14 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external dgetu0,dreorth,dsafescal,dzero,izero,pdcopy,pdaxpy
++      external dgetu0,dreorth,dsafescal,pd0c,pd01,pd04,pd0a
+       external dcompute_int,dupdate_nu,dupdate_mu
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+-      double precision dlamch,pdnrm2,pddot,dlapy2
+-      external pdnrm2,pddot
++      double precision dlamch,pd06,pd0b,dlapy2
++      external pd06,pd0b
+       external dlamch,dlapy2
+ 
+ c-------------------- Here begins executable code ---------------------
+@@ -197,8 +197,8 @@
+       inu = imu+k+1
+       is = inu+k+1
+       iidx = 1
+-      call pdzero(max(m,n)+2*k+2,work,1)
+-      call pizero(2*k+1,iwork,1)
++      call pd09(max(m,n)+2*k+2,work,1)
++      call pizero_d(2*k+1,iwork,1)
+ 
+ c     %---------------------------%
+ c     | Prepare Lanczos iteration |
+@@ -241,7 +241,7 @@
+          iwork(iidx+1) = k0
+          iwork(iidx+2) = k0+1
+ 
+-         call pdscal(m,rnorm,U(1,k0+1),1)
++         call pd03(m,rnorm,U(1,k0+1),1)
+          call dreorth(m,k0,U,ldu,U(1,k0+1),rnorm,iwork(iidx),kappa,
+      c        work(is),ioption(1))
+          call dsafescal(m,rnorm,U(1,k0+1))
+@@ -289,11 +289,11 @@
+          nopx = nopx+1
+ 
+          if (j.eq.1) then
+-            alpha = pdnrm2(n,V(1,j),1)
++            alpha = pd06(n,V(1,j),1)
+             anorm = max(anorm,FUDGE*alpha)
+          else            
+-            call pdaxpy(n,-beta,V(1,j-1),1,V(1,j),1)
+-            alpha = pdnrm2(n,V(1,j),1)
++            call pd0a(n,-beta,V(1,j-1),1,V(1,j),1)
++            alpha = pd06(n,V(1,j),1)
+ 
+ c     %------------------------------------%
+ c     | Extended local reorthogonalization |
+@@ -301,13 +301,13 @@
+             if (j.gt.1 .and. ioption(2).gt.0 .and.
+      c           alpha.lt.kappa*beta) then
+                do i=1,ioption(2)
+-                  s = pddot(n,V(1,j-1),1,V(1,j),1)
+-                  call pdaxpy(n,-s,V(1,j-1),1,V(1,j),1)
++                  s = pd0b(n,V(1,j-1),1,V(1,j),1)
++                  call pd0a(n,-s,V(1,j-1),1,V(1,j),1)
+                   if (beta .ne. zero) then
+                      beta = beta + s
+                      B(j-1,2) = beta
+                   endif
+-                  s = pdnrm2(n,V(1,j),1)
++                  s = pd06(n,V(1,j),1)
+                   if (s .ge. kappa*alpha) goto 10                  
+                   alpha = s
+                enddo
+@@ -420,21 +420,21 @@
+          call aprod('n',m,n,V(1,j),U(1,j+1),dparm,iparm)
+          nopx = nopx+1
+ 
+-         call pdaxpy(m,-alpha,U(1,j),1,U(1,j+1),1)
+-         beta = pdnrm2(m,U(1,j+1),1)
++         call pd0a(m,-alpha,U(1,j),1,U(1,j+1),1)
++         beta = pd06(m,U(1,j+1),1)
+          
+ c     %------------------------------------%
+ c     | Extended local reorthogonalization |
+ c     %------------------------------------%
+          if (ioption(2).gt.0 .and. beta.lt.kappa*alpha) then
+             do i=1,ioption(2)
+-               s = pddot(m,U(1,j),1,U(1,j+1),1)
+-               call pdaxpy(m,-s,U(1,j),1,U(1,j+1),1)
++               s = pd0b(m,U(1,j),1,U(1,j+1),1)
++               call pd0a(m,-s,U(1,j),1,U(1,j+1),1)
+                if (alpha .ne. zero) then
+                   alpha = alpha + s
+                   B(j,1) = alpha
+                endif
+-               s = pdnrm2(m,U(1,j+1),1)       
++               s = pd06(m,U(1,j+1),1)       
+                if (s .ge. kappa*beta) goto 20
+                beta = s
+             enddo
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dlansvd.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dlansvd.F
+@@ -118,14 +118,14 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external dzero,izero,dcopy,daxpy,dbdsqr,dgemm
++      external pd0c,pd01,dcopy,daxpy,dbdsqr,dgemm
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+       logical lsame
+-      double precision dlamch,pdnrm2,ddot,dlapy2
+-      external pdnrm2,ddot,lsame
++      double precision dlamch,pd06,ddot,dlapy2
++      external pd06,ddot,lsame
+       external dlamch,dlapy2
+ 
+ c-------------------- Here begins executable code ---------------------
+@@ -157,12 +157,12 @@
+       iq = ip + (lanmax+1)**2
+       iwrk = iq + lanmax**2
+       lwrk = lwork-iwrk+1
+-      call dzero(7*lanmax + 2 + 2*lanmax**2,work,1)
++      call pd0c(7*lanmax + 2 + 2*lanmax**2,work,1)
+ 
+ c     %---------------------------------------------------------------%
+ c     | Set up random starting vector if none is provided by the user |
+ c     %---------------------------------------------------------------%
+-      rnorm = pdnrm2(m,U(1,1),1)
++      rnorm = pd06(m,U(1,1),1)
+       if (rnorm.eq.zero) then
+          call dgetu0('n',m,n,0,1,U,rnorm,U,ldu,aprod,
+      c        dparm,iparm, ierr,ioption(1),anorm,work(iwrk))     
+@@ -191,7 +191,7 @@
+ c     | Compute and analyze SVD(B) and error bounds |
+ c     %---------------------------------------------%
+          call dcopy(2*lanmax, work(ib),1,work(ib1),1)
+-         call dzero(j+1,work(ibnd),1)
++         call pd0c(j+1,work(ibnd),1)
+          
+          call dbdqr((j.eq.min(m,n)),'N',j,work(ib1),work(ib1+lanmax),
+      c        work(ibnd+j-1),work(ibnd+j),work(ip),lanmax+1)
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dlansvd_irl.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dlansvd_irl.F
+@@ -138,14 +138,14 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external dzero,izero,dcopy,daxpy,dbdsqr,dgemm
++      external pd0c,pd01,dcopy,daxpy,dbdsqr,dgemm
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+       logical lsame
+-      double precision dlamch,pdnrm2,ddot,dlapy2
+-      external pdnrm2,ddot,lsame
++      double precision dlamch,pd06,ddot,dlapy2
++      external pd06,ddot,lsame
+       external dlamch,dlapy2
+ #ifdef _OPENMP
+       integer omp_get_thread_num, omp_get_num_threads
+@@ -185,12 +185,12 @@
+       iq = ip + (dim+1)**2
+       iwrk = iq + dim**2
+       lwrk = lwork-iwrk+1
+-      call dzero(8*dim + 3 + 2*dim**2,work,1)
++      call pd0c(8*dim + 3 + 2*dim**2,work,1)
+ 
+ c     %---------------------------------------------------------------%
+ c     | Set up random starting vector if none is provided by the user |
+ c     %---------------------------------------------------------------%
+-      rnorm = pdnrm2(m,U(1,1),1)
++      rnorm = pd06(m,U(1,1),1)
+       if (rnorm.eq.zero) then
+          call dgetu0('n',m,n,0,1,U,rnorm,U,ldu,aprod,
+      c        dparm,iparm, ierr,ioption(1),anorm,work(iwrk))     
+@@ -219,7 +219,7 @@
+ c     %---------------------------------------------%
+          call dcopy(dim, work(ialpha),1,work(ialpha1),1)
+          call dcopy(dim, work(ibeta),1,work(ibeta1),1)
+-         call dzero(dim+1,work(ibnd),1)
++         call pd0c(dim+1,work(ibnd),1)
+ 
+          call dbdqr((dim.eq.min(m,n)),'N',dim,work(ialpha1),
+      c        work(ibeta1),work(ibnd+dim-1),work(ibnd+dim),
+@@ -315,7 +315,7 @@
+ c     | We use exact shifts mu_i for which the relative gap between mu_i    |
+ c     | and the lower bound on the k'th Ritzvalue is larger than doption(4) |
+ c     %---------------------------------------------------------------------%
+-            call dzero(dim-k,work(ishift),1)
++            call pd0c(dim-k,work(ishift),1)
+             nshft = 0
+             if (lsame(which,'s')) then
+                do i=1,k
+@@ -347,8 +347,8 @@
+ c     | Apply shifts and accumulate rotations such that  |
+ c     |   B_{dim}^{+} = P * B_{dim} * Q^T                |
+ c     %--------------------------------------------------%
+-            call dzero((dim+1)*(dim+1),work(ip),1)
+-            call dzero(dim*dim,work(iq),1)
++            call pd0c((dim+1)*(dim+1),work(ip),1)
++            call pd0c(dim*dim,work(iq),1)
+             do i=1,dim+1
+                work(ip+(i-1)*(dim+2)) = one
+             enddo
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dreorth.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dreorth.F
+@@ -77,8 +77,8 @@
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+-      double precision pdnrm2
+-      external pdnrm2,pdzero
++      double precision pd06
++      external pd06,pd09
+ 
+       if (k.le.0 .or. n.le.0) return
+ 
+@@ -90,12 +90,12 @@
+             call dmgs(n,k,V,ldv,vnew,index)
+          endif
+          ndot = ndot + k
+-         normvnew = pdnrm2(n,vnew,1)
++         normvnew = pd06(n,vnew,1)
+          if (normvnew.gt.alpha*normvnew_0) goto 9999
+       enddo
+       normvnew = zero
+ c     vnew is numerically in span(V) => return vnew = (0,0,...,0)^T
+-      call pdzero(n,vnew,1)
++      call pd09(n,vnew,1)
+  9999 nreorth = nreorth + 1
+       return
+       end
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/dsafescal.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/dsafescal.F
+@@ -47,7 +47,7 @@
+       endif
+ 
+       if (abs(alpha).ge.sfmin) then
+-         call pdscal(n,one/alpha, x, 1)
++         call pd03(n,one/alpha, x, 1)
+       else
+          call dlascl('General',i,i,alpha,one,n,1,x,n,info)
+       endif
+--- a/scipy/sparse/linalg/_propack/PROPACK/double/printstat.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/double/printstat.F
+@@ -62,7 +62,7 @@
+ c      print *,'Time spent on local reorth. on U_{j+1}      = ',telru
+ c      print *,'Time spent on local reorth. on V_{j+1}      = ',telrv
+ c      print *,'Time spent in PDNORM2                       = ',tnorm2
+-c      print *,'Time spent in PDDOT                         = ',tdot
++c      print *,'Time spent in pd0b                         = ',tdot
+       print *
+       print *,'  Time spent in LANBPRO                     = ',tlanbpro
+       print *,'  Time spent computing bidiagonal SVDs      = ',tbsvd
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/printstat.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/printstat.F
+@@ -62,7 +62,7 @@
+ c      print *,'Time spent on local reorth. on U_{j+1}      = ',telru
+ c      print *,'Time spent on local reorth. on V_{j+1}      = ',telrv
+ c      print *,'Time spent in PDNORM2                       = ',tnorm2
+-c      print *,'Time spent in PDDOT                         = ',tdot
++c      print *,'Time spent in ps0b                         = ',tdot
+       print *
+       print *,'  Time spent in LANBPRO                     = ',tlanbpro
+       print *,'  Time spent computing bidiagonal SVDs      = ',tbsvd
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/sblasext.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/sblasext.F
+@@ -3,7 +3,7 @@
+ c
+ 
+ #ifdef _OPENMP
+-      real function psnrm2(n, x, incx)
++      real function ps24(n, x, incx)
+       implicit none
+       integer n, incx
+       real x(*)
+@@ -24,9 +24,9 @@
+                sum = sum + x(1+(i-1)*incx)**2
+             enddo
+          endif
+-         psnrm2 = sqrt(sum)
++         ps24 = sqrt(sum)
+       else
+-         psnrm2 = 0.0
++         ps24 = 0.0
+       endif   
+       return
+       end
+@@ -35,7 +35,7 @@
+ c 
+       
+ 
+-      subroutine psscal(n, alpha, x , incx)
++      subroutine ps22(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       real alpha,x(*)
+@@ -63,7 +63,7 @@
+ c 
+          
+ 
+-      subroutine pscopy(n, x , incx, y, incy)
++      subroutine ps23(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*)
+@@ -89,7 +89,7 @@
+ c
+ c****************************************************************************
+ c 
+-      subroutine psaxpy(n, alpha, x , incx, y, incy)
++      subroutine ps27(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real alpha,x(*),y(*)
+@@ -118,7 +118,7 @@
+ c 
+      
+          
+-      real function psdot(n, x , incx, y, incy)
++      real function ps28(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*)
+@@ -141,9 +141,9 @@
+                sum = sum + x(1+(i-1)*incx) * y(1+(i-1)*incy)
+             enddo
+          endif
+-         psdot = sum
++         ps28 = sum
+       else
+-         psdot = 0.0
++         ps28 = 0.0
+       endif   
+       return
+       end
+@@ -151,16 +151,16 @@
+ 
+ #else
+ 
+-      real function psnrm2(n, x, incx)
++      real function ps24(n, x, incx)
+       implicit none
+       integer n, incx
+       real x(*), snrm2
+       external snrm2
+ 
+-      psnrm2 = snrm2(n, x, incx)
+-      end
+-
+-      subroutine psscal(n, alpha, x , incx)
++      ps24 = snrm2(n, x, incx)
++      end
++
++      subroutine ps22(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       real alpha,x(*)
+@@ -168,7 +168,7 @@
+       call sscal(n, alpha, x , incx)
+       end
+ 
+-      subroutine pscopy(n, x , incx, y, incy)
++      subroutine ps23(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*)
+@@ -176,7 +176,7 @@
+       call scopy(n, x , incx, y, incy)
+       end
+ 
+-      subroutine psaxpy(n, alpha, x , incx, y, incy)
++      subroutine ps27(n, alpha, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real alpha,x(*),y(*)
+@@ -185,13 +185,13 @@
+       end
+ 
+       
+-      real function psdot(n, x , incx, y, incy)
++      real function ps28(n, x , incx, y, incy)
+       implicit none
+       integer n, incx, incy
+       real x(*),y(*),sdot
+       external sdot
+       
+-      psdot = sdot(n, x , incx, y, incy)
++      ps28 = sdot(n, x , incx, y, incy)
+       end
+ #endif
+ 
+@@ -199,7 +199,7 @@
+ c****************************************************************************
+ c 
+          
+-      subroutine pszero(n, x , incx)
++      subroutine ps26(n, x , incx)
+       implicit none
+       integer n, incx
+       real x(*)
+@@ -227,7 +227,7 @@
+       end
+ 
+ 
+-      subroutine pizero(n, x , incx)
++      subroutine ps05(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*)
+@@ -255,7 +255,7 @@
+       end
+ 
+ 
+-      subroutine psset(n, alpha, x , incx)
++      subroutine ps25(n, alpha, x , incx)
+       implicit none
+       integer n, incx
+       real alpha,x(*)
+@@ -284,7 +284,7 @@
+ 
+ 
+   
+-      subroutine psaxpby(n,alpha,x,incx,beta,y,incy)
++      subroutine ps21(n,alpha,x,incx,beta,y,incy)
+ c
+ c     Y = alpha*X + beta*Y
+ c     
+@@ -315,12 +315,12 @@
+          
+       else if (alpha.eq.zero .and. beta.ne.zero) then
+          
+-         call psscal(n,beta,y,incy)
++         call ps22(n,beta,y,incy)
+ 
+       else if (alpha.ne.zero .and. beta.eq.zero) then
+ 
+          if (alpha.eq.one) then
+-            call pscopy(n,x,incx,y,incy)
++            call ps23(n,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -344,7 +344,7 @@
+ 
+          if (beta.eq.one) then
+ c DAXPY
+-            call psaxpy(n,alpha,x,incx,y,incy)
++            call ps27(n,alpha,x,incx,y,incy)
+          else
+             if (incx.eq.1 .and. incy.eq.1) then
+ #ifdef _OPENMP
+@@ -371,7 +371,7 @@
+ 
+ 
+ 
+-      subroutine psaxty(n,alpha,x,incx,y,incy)
++      subroutine ps20(n,alpha,x,incx,y,incy)
+ c
+ c     Y = alpha*X*Y
+ c     
+@@ -445,7 +445,7 @@
+ 
+ 
+ 
+-      subroutine szero(n, x , incx)
++      subroutine ps08(n, x , incx)
+       implicit none
+       integer n, incx
+       real x(*),zero
+@@ -467,7 +467,7 @@
+       end
+ 
+                  
+-      subroutine dzero(n, x , incx)
++      subroutine dzero_s(n, x , incx)
+       implicit none
+       integer n, incx
+       double precision x(*),zero
+@@ -489,7 +489,7 @@
+       end
+ 
+ 
+-      subroutine izero(n, x , incx)
++      subroutine ps01(n, x , incx)
+       implicit none
+       integer n, incx
+       integer x(*),zero
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/sgetu0.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/sgetu0.F
+@@ -39,8 +39,8 @@
+ c     | External Functions |
+ c     %--------------------%
+       logical lsame
+-      real psnrm2
+-      external psnrm2,lsame
++      real ps24
++      external ps24,lsame
+ 
+ c-------------------- Here begins executable code ---------------------
+ 
+@@ -67,11 +67,11 @@
+       ierr = 0
+       do itry=1,ntry
+          call slarnv(idist, iseed, rsize, work)
+-         nrm = psnrm2(rsize,work,1)
++         nrm = ps24(rsize,work,1)
+          call aprod(transa,m,n,work,u0,dparm,iparm)
+          nopx = nopx+1
+ 
+-         u0norm = psnrm2(usize,u0,1)
++         u0norm = ps24(usize,u0,1)
+          anormest = u0norm/nrm
+          
+          if (j.ge.1) then
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/slanbpro.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/slanbpro.F
+@@ -129,14 +129,14 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external sgetu0,sreorth,ssafescal,szero,izero,pscopy,psaxpy
++      external sgetu0,sreorth,ssafescal,ps08,ps01,ps23,ps27
+       external scompute_int,supdate_nu,supdate_mu
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+-      real slamch,psnrm2,psdot,slapy2
+-      external psnrm2,psdot
++      real slamch,ps24,ps28,slapy2
++      external ps24,ps28
+       external slamch,slapy2
+ 
+ c-------------------- Here begins executable code ---------------------
+@@ -198,8 +198,8 @@
+       inu = imu+k+1
+       is = inu+k+1
+       iidx = 1
+-      call pszero(max(m,n)+2*k+2,work,1)
+-      call pizero(2*k+1,iwork,1)
++      call ps26(max(m,n)+2*k+2,work,1)
++      call ps05(2*k+1,iwork,1)
+ 
+ c     %---------------------------%
+ c     | Prepare Lanczos iteration |
+@@ -242,7 +242,7 @@
+          iwork(iidx+1) = k0
+          iwork(iidx+2) = k0+1
+ 
+-         call psscal(m,rnorm,U(1,k0+1),1)
++         call ps22(m,rnorm,U(1,k0+1),1)
+          call sreorth(m,k0,U,ldu,U(1,k0+1),rnorm,iwork(iidx),kappa,
+      c        work(is),ioption(1))
+          call ssafescal(m,rnorm,U(1,k0+1))
+@@ -290,11 +290,11 @@
+          nopx = nopx+1
+ 
+          if (j.eq.1) then
+-            alpha = psnrm2(n,V(1,j),1)
++            alpha = ps24(n,V(1,j),1)
+             anorm = max(anorm,FUDGE*alpha)
+          else            
+-            call psaxpy(n,-beta,V(1,j-1),1,V(1,j),1)
+-            alpha = psnrm2(n,V(1,j),1)
++            call ps27(n,-beta,V(1,j-1),1,V(1,j),1)
++            alpha = ps24(n,V(1,j),1)
+ 
+ c     %------------------------------------%
+ c     | Extended local reorthogonalization |
+@@ -302,13 +302,13 @@
+             if (j.gt.1 .and. ioption(2).gt.0 .and.
+      c           alpha.lt.kappa*beta) then
+                do i=1,ioption(2)
+-                  s = psdot(n,V(1,j-1),1,V(1,j),1)
+-                  call psaxpy(n,-s,V(1,j-1),1,V(1,j),1)
++                  s = ps28(n,V(1,j-1),1,V(1,j),1)
++                  call ps27(n,-s,V(1,j-1),1,V(1,j),1)
+                   if (beta .ne. zero) then
+                      beta = beta + s
+                      B(j-1,2) = beta
+                   endif
+-                  s = psnrm2(n,V(1,j),1)
++                  s = ps24(n,V(1,j),1)
+                   if (s .ge. kappa*alpha) goto 10                  
+                   alpha = s
+                enddo
+@@ -421,21 +421,21 @@
+          call aprod('n',m,n,V(1,j),U(1,j+1),dparm,iparm)
+          nopx = nopx+1
+ 
+-         call psaxpy(m,-alpha,U(1,j),1,U(1,j+1),1)
+-         beta = psnrm2(m,U(1,j+1),1)
++         call ps27(m,-alpha,U(1,j),1,U(1,j+1),1)
++         beta = ps24(m,U(1,j+1),1)
+          
+ c     %------------------------------------%
+ c     | Extended local reorthogonalization |
+ c     %------------------------------------%
+          if (ioption(2).gt.0 .and. beta.lt.kappa*alpha) then
+             do i=1,ioption(2)
+-               s = psdot(m,U(1,j),1,U(1,j+1),1)
+-               call psaxpy(m,-s,U(1,j),1,U(1,j+1),1)
++               s = ps28(m,U(1,j),1,U(1,j+1),1)
++               call ps27(m,-s,U(1,j),1,U(1,j+1),1)
+                if (alpha .ne. zero) then
+                   alpha = alpha + s
+                   B(j,1) = alpha
+                endif
+-               s = psnrm2(m,U(1,j+1),1)       
++               s = ps24(m,U(1,j+1),1)       
+                if (s .ge. kappa*beta) goto 20
+                beta = s
+             enddo
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/slansvd.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/slansvd.F
+@@ -119,14 +119,14 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external szero,izero,scopy,sbdsqr
++      external ps08,ps01,scopy,sbdsqr
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+       logical lsame
+-      real slamch,psnrm2
+-      external psnrm2,lsame
++      real slamch,ps24
++      external ps24,lsame
+       external slamch
+ 
+ c-------------------- Here begins executable code ---------------------
+@@ -158,12 +158,12 @@
+       iq = ip + (lanmax+1)**2
+       iwrk = iq + lanmax**2
+       lwrk = lwork-iwrk+1
+-      call szero(7*lanmax + 2 + 2*lanmax**2,work,1)
++      call ps08(7*lanmax + 2 + 2*lanmax**2,work,1)
+ 
+ c     %---------------------------------------------------------------%
+ c     | Set up random starting vector if none is provided by the user |
+ c     %---------------------------------------------------------------%
+-      rnorm = psnrm2(m,U(1,1),1)
++      rnorm = ps24(m,U(1,1),1)
+       if (rnorm.eq.zero) then
+          call sgetu0('n',m,n,0,1,U,rnorm,U,ldu,aprod,
+      c        dparm,iparm, ierr,ioption(1),anorm,work(iwrk))     
+@@ -191,7 +191,7 @@
+ c     | Compute and analyze SVD(B) and error bounds |
+ c     %---------------------------------------------%
+          call scopy(2*lanmax, work(ib),1,work(ib1),1)
+-         call szero(j+1,work(ibnd),1)
++         call ps08(j+1,work(ibnd),1)
+          
+          call sbdqr((j.eq.min(m,n)),'N',j,work(ib1),work(ib1+lanmax),
+      c        work(ibnd+j-1),work(ibnd+j),work(ip),lanmax+1)
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/slansvd_irl.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/slansvd_irl.F
+@@ -138,14 +138,14 @@
+ c     %----------------------%
+ c     | External Subroutines |
+ c     %----------------------%
+-      external szero,izero,scopy,sbdsqr
++      external ps08,ps01,scopy,sbdsqr
+       
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+       logical lsame
+-      real slamch,psnrm2
+-      external psnrm2,lsame
++      real slamch,ps24
++      external ps24,lsame
+       external slamch
+ #ifdef _OPENMP
+       integer omp_get_thread_num, omp_get_num_threads
+@@ -185,12 +185,12 @@
+       iq = ip + (dim+1)**2
+       iwrk = iq + dim**2
+       lwrk = lwork-iwrk+1
+-      call szero(8*dim + 3 + 2*dim**2,work,1)
++      call ps08(8*dim + 3 + 2*dim**2,work,1)
+ 
+ c     %---------------------------------------------------------------%
+ c     | Set up random starting vector if none is provided by the user |
+ c     %---------------------------------------------------------------%
+-      rnorm = psnrm2(m,U(1,1),1)
++      rnorm = ps24(m,U(1,1),1)
+       if (rnorm.eq.zero) then
+          call sgetu0('n',m,n,0,1,U,rnorm,U,ldu,aprod,
+      c        dparm,iparm, ierr,ioption(1),anorm,work(iwrk))     
+@@ -219,7 +219,7 @@
+ c     %---------------------------------------------%
+          call scopy(dim, work(ialpha),1,work(ialpha1),1)
+          call scopy(dim, work(ibeta),1,work(ibeta1),1)
+-         call szero(dim+1,work(ibnd),1)
++         call ps08(dim+1,work(ibnd),1)
+ 
+          call sbdqr((dim.eq.min(m,n)),'N',dim,work(ialpha1),
+      c        work(ibeta1),work(ibnd+dim-1),work(ibnd+dim),
+@@ -315,7 +315,7 @@
+ c     | We use exact shifts mu_i for which the relative gap between mu_i    |
+ c     | and the lower bound on the k'th Ritzvalue is larger than doption(4) |
+ c     %---------------------------------------------------------------------%
+-            call szero(dim-k,work(ishift),1)
++            call ps08(dim-k,work(ishift),1)
+             nshft = 0
+             if (lsame(which,'s')) then
+                do i=1,k
+@@ -347,8 +347,8 @@
+ c     | Apply shifts and accumulate rotations such that  |
+ c     |   B_{dim}^{+} = P * B_{dim} * Q^T                |
+ c     %--------------------------------------------------%
+-            call szero((dim+1)*(dim+1),work(ip),1)
+-            call szero(dim*dim,work(iq),1)
++            call ps08((dim+1)*(dim+1),work(ip),1)
++            call ps08(dim*dim,work(iq),1)
+             do i=1,dim+1
+                work(ip+(i-1)*(dim+2)) = one
+             enddo
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/sreorth.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/sreorth.F
+@@ -77,8 +77,8 @@
+ c     %--------------------%
+ c     | External Functions |
+ c     %--------------------%
+-      real psnrm2
+-      external psnrm2,pszero
++      real ps24
++      external ps24,ps26
+ 
+       if (k.le.0 .or. n.le.0) return
+ 
+@@ -90,12 +90,12 @@
+             call smgs(n,k,V,ldv,vnew,index)
+          endif
+          ndot = ndot + k
+-         normvnew = psnrm2(n,vnew,1)
++         normvnew = ps24(n,vnew,1)
+          if (normvnew.gt.alpha*normvnew_0) goto 9999
+       enddo
+       normvnew = zero
+ c     vnew is numerically in span(V) => return vnew = (0,0,...,0)^T
+-      call pszero(n,vnew,1)
++      call ps26(n,vnew,1)
+  9999 nreorth = nreorth + 1
+       return
+       end
+--- a/scipy/sparse/linalg/_propack/PROPACK/single/ssafescal.F
++++ b/scipy/sparse/linalg/_propack/PROPACK/single/ssafescal.F
+@@ -47,7 +47,7 @@
+       endif
+ 
+       if (abs(alpha).ge.sfmin) then
+-         call psscal(n,one/alpha, x, 1)
++         call ps22(n,one/alpha, x, 1)
+       else
+          call slascl('General',i,i,alpha,one,n,1,x,n,info)
+       endif

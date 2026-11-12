@@ -28,6 +28,22 @@
   char *session = strdup("python-smoke"); ios_switchSession(session); ios_setContext(session);
   ios_setDirectoryURL([NSURL fileURLWithPath:documents]);
   NSArray *commands = @[
+   @"python3 -c 'from Crypto.Cipher import AES; from Crypto.Hash import SHA256; from Crypto.PublicKey import RSA; key=RSA.generate(1024); assert RSA.import_key(key.export_key()).n==key.n; a=AES.new(bytes(16),AES.MODE_ECB); assert a.decrypt(a.encrypt(bytes(16)))==bytes(16); assert len(SHA256.new(b\"test\").digest())==32; print(\"CRYPTO_OK\")'",
+   @"python3 -c 'from Cryptodome.Cipher import AES; from Cryptodome.Hash import SHA256; from Cryptodome.PublicKey import RSA; key=RSA.generate(1024); assert RSA.import_key(key.export_key()).n==key.n; a=AES.new(bytes(16),AES.MODE_ECB); assert a.decrypt(a.encrypt(bytes(16)))==bytes(16); assert len(SHA256.new(b\"test\").digest())==32; print(\"CRYPTODOME_OK\")'",
+   @"python3 -c 'from Crypto.Cipher import AES; from Crypto.Hash import SHA256; from Crypto.PublicKey import RSA; key=RSA.generate(1024); assert RSA.import_key(key.export_key()).n==key.n; a=AES.new(bytes(16),AES.MODE_ECB); assert a.decrypt(a.encrypt(bytes(16)))==bytes(16); assert len(SHA256.new(b\"test\").digest())==32; print(\"CRYPTO_OK\")'",
+   @"python3 -c 'import scipy, numpy as np; from scipy import linalg, integrate, special, optimize, sparse, stats; assert np.allclose(linalg.solve([[3.,1.],[1.,2.]],[9.,8.]),[2.,3.]); assert abs(integrate.quad(lambda x:x*x,0,1)[0]-1/3)<1e-10; assert special.erf(0)==0; assert abs(stats.norm.cdf(0)-0.5)<1e-10; r=optimize.linprog([1.,1.],bounds=[(1,None),(2,None)],method=\"highs\"); assert r.success and np.allclose(r.x,[1,2]); assert abs(sparse.linalg.eigs(sparse.diags([1.,2.,3.,4.]),k=1,which=\"LM\")[0][0]-4)<1e-6; print(\"SCIPY_OK\", scipy.__version__)'",
+   @"python3 -c 'import numpy as np; from scipy.sparse.linalg import svds; ds=[np.float32,np.float64,np.complex64,np.complex128]; values=[svds(np.diag(np.array([1,2,3,4],dtype=d)),k=2,solver=\"propack\",return_singular_vectors=False) for d in ds]; assert all(np.allclose(x,[3,4],atol=1e-4) for x in values); print(\"SCIPY_PROPACK_TYPES_OK\")'",
+   @"python3 -c 'from scipy.integrate import quad; from scipy.optimize import minimize; assert abs(quad(lambda x:x*x,0,1)[0]-1/3)<1e-10; r=minimize(lambda x:(x[0]-3)**2,[0.]); assert r.success; print(\"SCIPY_REPEAT_OK\")'",
+
+   @"python3 -c 'import kiwisolver as k; x=k.Variable(\"x\"); s=k.Solver(); s.addConstraint(x==42); s.updateVariables(); assert x.value()==42; print(\"KIWISOLVER_OK\")'",
+
+   @"python3 -c 'import numpy as np; from PIL import Image; from cryptography.fernet import Fernet; assert np.linalg.det(np.eye(3))==1; assert Image.new(\"L\",(2,2),7).getpixel((0,0))==7; f=Fernet(Fernet.generate_key()); assert f.decrypt(f.encrypt(b\"reuse\"))==b\"reuse\"; print(\"NATIVE_REENTRY_1\")'",
+   @"python3 -c 'import numpy as np; from PIL import Image; from cryptography.fernet import Fernet; assert np.arange(9).sum()==36; assert Image.new(\"L\",(2,2),7).getpixel((0,0))==7; f=Fernet(Fernet.generate_key()); assert f.decrypt(f.encrypt(b\"reuse\"))==b\"reuse\"; print(\"NATIVE_REENTRY_2\")'",
+   @"python3 -c 'import numpy as np; from PIL import Image; from cryptography.fernet import Fernet; assert np.linalg.det(np.eye(3))==1; assert Image.new(\"L\",(2,2),7).getpixel((0,0))==7; f=Fernet(Fernet.generate_key()); assert f.decrypt(f.encrypt(b\"reuse\"))==b\"reuse\"; print(\"NATIVE_REENTRY_3\")'",
+
+   @"python3 -c 'from PIL import Image, ImageFont, ImageShow; from io import BytesIO; im=Image.new(\"RGB\",(13,7),(10,20,30)); out=BytesIO(); im.save(out,format=\"PNG\"); out.seek(0); assert Image.open(out).getpixel((0,0))==(10,20,30); assert ImageFont.load_default().getbbox(\"Hello\")[2]>0; print(\"PILLOW_OK\")'",
+   @"python3 -c 'from PIL import Image; from io import BytesIO; b=BytesIO(); Image.new(\"RGB\",(20,20),\"red\").save(b,format=\"JPEG\"); b.seek(0); assert Image.open(b).size==(20,20); print(\"PILLOW_REPEAT_OK\")'",
+
    @"python3 -c 'import numpy as np; a=np.array([[3.,1.],[1.,2.]]); assert np.allclose(np.linalg.solve(a,[9.,8.]),[2.,3.]); assert np.allclose(np.fft.rfft([0,1,2,3]),[6,-2+2j,-2]); print(\"NUMPY_OK\", np.__version__)'",
    @"python3 -c 'import numpy as np; x=np.random.default_rng(7).normal(size=100); assert np.isfinite(x).all(); print(\"NUMPY_REPEAT_OK\", float(x.mean()))'",
 

@@ -1,0 +1,124 @@
+diff --git a/flang-rt/cmake/modules/AddFlangRT.cmake b/flang-rt/cmake/modules/AddFlangRT.cmake
+index 7906053..0e13909 100644
+--- a/flang-rt/cmake/modules/AddFlangRT.cmake
++++ b/flang-rt/cmake/modules/AddFlangRT.cmake
+@@ -226,7 +226,7 @@ function (add_flangrt_library name)
+   endforeach ()
+ 
+  set(TARGET_FLAGS)
+-  if(APPLE)
++  if(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+     set(DARWIN_EMBEDDED_PLATFORMS)
+     set(DARWIN_osx_BUILTIN_MIN_VER 10.7)
+     set(DARWIN_osx_BUILTIN_MIN_VER_FLAG
+@@ -305,7 +305,7 @@ function (add_flangrt_library name)
+           $<$<COMPILE_LANGUAGE:CXX>:-nogpulib -flto -fvisibility=hidden -Wno-unknown-cuda-version --cuda-feature=+ptx63>
+           $<$<COMPILE_LANGUAGE:Fortran>:-nogpulib -flto>
+         )
+-    elseif (APPLE)
++    elseif (APPLE AND CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+       # Clang on Darwin enables non-POSIX extensions by default.
+       # This causes some macros to leak, such as HUGE from <math.h>, which
+       # causes some conflicts with Flang symbols (but not with Flang-RT, for
+diff --git a/flang-rt/lib/runtime/execute.cpp b/flang-rt/lib/runtime/execute.cpp
+index 4fd6a1e..773b078 100644
+--- a/flang-rt/lib/runtime/execute.cpp
++++ b/flang-rt/lib/runtime/execute.cpp
+@@ -27,6 +27,8 @@
+ #include <unistd.h>
+ #endif
+ 
++extern "C" int ios_system(const char *);
++
+ namespace Fortran::runtime {
+ 
+ // cmdstat specified in 16.9.73
+@@ -104,7 +106,7 @@ std::int64_t TerminationCheck(std::int64_t status, const Descriptor *cmdstat,
+     }
+   }
+ 
+-  // On WIN32 API std::system() returns exit status directly. On other OS'es,
++  // On WIN32 API ::ios_system() returns exit status directly. On other OS'es,
+   // special status codes are handled below.
+   std::int64_t exitStatusVal{status};
+ #ifdef _WIN32
+@@ -230,7 +232,7 @@ void RTNAME(ExecuteCommandLine)(const Descriptor &command, bool wait,
+ 
+   if (wait) {
+     // either wait is not specified or wait is true: synchronous mode
+-    std::int64_t status{std::system(cmd)};
++    std::int64_t status{::ios_system(cmd)};
+     std::int64_t exitStatusVal{
+         TerminationCheck(status, cmdstat, cmdmsg, terminator)};
+     // If sync, assigned processor-dependent exit status. Otherwise unchanged
+@@ -297,7 +299,7 @@ void RTNAME(ExecuteCommandLine)(const Descriptor &command, bool wait,
+         }
+         exit(EXIT_FAILURE);
+       }
+-      std::int64_t status{std::system(newCmd)};
++      std::int64_t status{::ios_system(newCmd)};
+       TerminationCheck(status, cmdstat, cmdmsg, terminator);
+       exit(status);
+     }
+diff --git a/flang-rt/lib/runtime/trampoline.cpp b/flang-rt/lib/runtime/trampoline.cpp
+index 871c6d2..4f47052 100644
+--- a/flang-rt/lib/runtime/trampoline.cpp
++++ b/flang-rt/lib/runtime/trampoline.cpp
+@@ -54,6 +54,10 @@
+ #include <cstdlib>
+ #include <cstring>
+ 
++#if defined(__APPLE__)
++#include <TargetConditionals.h>
++#endif
++
+ // Platform-specific headers for memory mapping.
+ #if defined(_WIN32)
+ #include <windows.h>
+@@ -76,7 +80,7 @@
+ 
+ // macOS Apple Silicon requires MAP_JIT and pthread_jit_write_protect_np
+ // to create executable memory under the hardened runtime.
+-#if defined(__APPLE__) && defined(__aarch64__)
++#if defined(__APPLE__) && defined(__aarch64__) && !TARGET_OS_IPHONE
+ #include <libkern/OSCacheControl.h>
+ #include <pthread.h>
+ #endif
+@@ -85,8 +89,8 @@
+ // AArch64. On other architectures the file compiles but the runtime API
+ // functions crash with a diagnostic if actually called, so that building
+ // flang-rt on e.g. RISC-V or PPC64 never fails.
+-#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
+-    defined(_M_ARM64)
++#if (defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
++    defined(_M_ARM64)) && !(defined(__APPLE__) && TARGET_OS_IPHONE)
+ #define TRAMPOLINE_ARCH_SUPPORTED 1
+ #else
+ #define TRAMPOLINE_ARCH_SUPPORTED 0
+@@ -221,7 +225,7 @@ private:
+ #if defined(_WIN32)
+     codeRegion_ = VirtualAlloc(
+         nullptr, codeSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+-#elif defined(__APPLE__) && defined(__aarch64__)
++#elif defined(__APPLE__) && defined(__aarch64__) && !TARGET_OS_IPHONE
+     // macOS Apple Silicon: MAP_JIT is required for pages that will become
+     // executable. Use pthread_jit_write_protect_np to toggle W↔X.
+     codeRegion_ = mmap(nullptr, codeSize, PROT_READ | PROT_WRITE | PROT_EXEC,
+@@ -269,7 +273,7 @@ private:
+     // Flush instruction cache. Required on architectures with non-coherent
+     // I-cache/D-cache (AArch64, PPC, etc.). On x86-64 this is a no-op
+     // but harmless. Without this, AArch64 may execute stale instructions.
+-#if defined(__APPLE__) && defined(__aarch64__)
++#if defined(__APPLE__) && defined(__aarch64__) && !TARGET_OS_IPHONE
+     // On macOS, use sys_icache_invalidate (from libkern/OSCacheControl.h).
+     sys_icache_invalidate(codeRegion_, codeSize);
+ #elif defined(_WIN32)
+@@ -283,7 +287,7 @@ private:
+ #if defined(_WIN32)
+     DWORD oldProtect;
+     VirtualProtect(codeRegion_, codeSize, PAGE_EXECUTE_READ, &oldProtect);
+-#elif defined(__APPLE__) && defined(__aarch64__)
++#elif defined(__APPLE__) && defined(__aarch64__) && !TARGET_OS_IPHONE
+     // Switch back to execute-only (MAP_JIT manages per-thread W^X).
+     if (__builtin_available(macOS 11.0, *)) {
+       pthread_jit_write_protect_np(1); // 1 = executable

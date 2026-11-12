@@ -34,9 +34,11 @@ def main():
     sdk = subprocess.check_output(['xcrun', '--sdk', sdk_name, '--show-sdk-path'], text=True).strip()
     env = dict(os.environ, PATH=str(python.parent) + ':' + os.environ['PATH'], PLATFORM=sdk_name)
     if not args.skip_build:
+        subprocess.run([str(python), str(ROOT / 'scripts/prepare-cython-reentry.py'),
+                        '--python', str(python)], check=True)
         flags = ['-target', triple, '-isysroot', sdk, '-I' + str(config_build),
                  '-I' + str(ROOT / 'cpython/Include'), '-I' + str(ROOT / 'build/python/deps/include'),
-                 '-DCYTHON_PEP489_MULTI_PHASE_INIT=0', '-DCYTHON_USE_DICT_VERSIONS=0',
+                 '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1', '-DCYTHON_USE_DICT_VERSIONS=0',
                  '-DCYTHON_USE_PYTYPE_LOOKUP=0']
         link = ['-target', triple, '-isysroot', sdk, '-F' + str(payload / 'Frameworks'),
                 '-framework', 'Python', '-F' + str(deps), '-framework', 'ios_system']
