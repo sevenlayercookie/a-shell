@@ -3,6 +3,7 @@
 import argparse
 import plistlib
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -42,6 +43,16 @@ def main():
         info_path.write_bytes(plistlib.dumps(info))
         print('Set libssh2 MinimumOSVersion to its binary deployment target:', minimum[1])
     for bundle in sorted((app / 'Frameworks').glob('*.framework')):
+        resources = bundle / 'Resources'
+        if resources.is_dir() and (bundle / 'Info.plist').is_file():
+            # A Resources directory selects desktop framework signing semantics,
+            # leaving the root iOS Info.plist unbound. Preserve resources flat.
+            for source in resources.iterdir():
+                destination = bundle / source.name
+                if destination.exists():
+                    raise RuntimeError('Framework resource collision: ' + str(destination))
+                shutil.move(str(source), destination)
+            resources.rmdir()
         info = plistlib.loads((bundle / 'Info.plist').read_bytes())
         subprocess.run(['codesign', '--force', '--sign', args.identity,
                         '--identifier', info['CFBundleIdentifier'],
@@ -62,10 +73,12 @@ def main():
     subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True)
     for bundle in sorted((app / 'Frameworks').glob('*.framework')):
         declared = plistlib.loads((bundle / 'Info.plist').read_bytes())['CFBundleIdentifier']
-        signed = subprocess.run(['codesign', '-d', '--verbose=2', str(bundle)],
+        signed = subprocess.run(['codesign', '-d', '--verbose=4', str(bundle)],
                                 capture_output=True, text=True, check=True).stderr
         if not re.search(r'^Identifier=' + re.escape(declared) + r'$', signed, re.MULTILINE):
             raise RuntimeError('Framework signature identifier mismatch: ' + str(bundle))
+        if 'Info.plist=not bound' in signed:
+            raise RuntimeError('Framework Info.plist is not signed: ' + str(bundle))
     print('Archive signatures verified')
 
 
