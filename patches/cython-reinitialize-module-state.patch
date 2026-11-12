@@ -1,6 +1,6 @@
 --- a/Cython/Utility/ModuleSetupCode.c
 +++ b/Cython/Utility/ModuleSetupCode.c
-@@ -1655,8 +1655,17 @@
+@@ -1655,8 +1655,18 @@
      if (__Pyx_check_single_interpreter())
          return NULL;
      #endif
@@ -9,7 +9,8 @@
 +        #if CYTHON_USE_MODULE_STATE
 +        /* Py_Finalize clears retained module dictionaries. A new main
 +         * interpreter may reuse the same numeric ID after reinitialization. */
-+        PyObject *name = PyDict_GetItemString(PyModule_GetDict(${module_cname}), "__name__");
++        PyObject *module_dict = PyModule_GetDict(${module_cname});
++        PyObject *name = module_dict ? PyDict_GetItemString(module_dict, "__name__") : NULL;
 +        if (name == NULL || name == Py_None) {
 +            if (__Pyx_State_RemoveModule(NULL) < 0) return NULL;
 +        } else

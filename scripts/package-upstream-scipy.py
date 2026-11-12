@@ -67,6 +67,9 @@ def main():
         'Frameworks/Python-scipy.scipy.framework/Python-scipy.scipy\n')
     for path in list((site / 'scipy').rglob('__pycache__')):
         shutil.rmtree(path)
+    subprocess.run([str(python), str(ROOT / 'scripts/install-pep621-metadata.py'),
+                    str(base / 'scipy-1.16.1'), '--site', str(site)]
+                   + (['--simulator'] if args.simulator else []), check=True)
     print('Packaged SciPy 1.16.1 for ' + platform)
 
 if __name__ == '__main__':

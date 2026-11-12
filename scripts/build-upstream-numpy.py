@@ -124,6 +124,8 @@ def main():
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_text(text)
             destination.chmod(0o755)
+    subprocess.run([str(python), str(ROOT / 'scripts/install-pep621-metadata.py'), str(source),
+                    '--site', str(site)] + (['--simulator'] if args.simulator else []), check=True)
     print('Packaged upstream NumPy 2.3.1 for ' + platform)
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.util
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -41,6 +42,11 @@ def main():
         if list(unpacked.rglob('*.dylib')):
             parser.error('wheel has auxiliary dylibs; package their dependencies explicitly first')
         for binary in native:
+            build = subprocess.check_output(['xcrun', 'vtool', '-show-build', str(binary)], text=True)
+            platforms = set(re.findall(r'^\s*platform\s+(\S+)', build, re.MULTILINE))
+            expected = 'IOSSIMULATOR' if args.simulator else 'IOS'
+            if platforms != {expected}:
+                parser.error(f'{binary.name} has native platforms {platforms}, expected {expected}')
             relative = binary.relative_to(unpacked)
             module = '.'.join((*relative.parts[:-1], relative.name.split('.')[0]))
             modules.append(module)

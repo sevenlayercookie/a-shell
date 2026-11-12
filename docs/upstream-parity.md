@@ -14,6 +14,9 @@ Current verified components:
 | SciPy | 1.16.1, upstream version with static OpenBLAS/Flang | Linear solve, quadrature, special functions, statistics, HiGHS, ARPACK, all four PROPACK types, repeated imports on arm64 Simulator |
 | PyCryptodome / Cryptodomex | 3.23.0, checksum-pinned source | AES round trip, SHA-256, RSA key export/import, repeated commands on arm64 iOS Simulator |
 | Pillow | 13.0.0, publisher iOS wheels | PNG/JPEG round trips, font metrics, repeated commands; upstream ImageShow adapter retained |
+| lxml | 6.1.3; static libxml2 2.9.13 and libxslt 1.1.35 | XPath, XSLT, objectify, HTML cleaning and three interpreter launches |
+| regex | 2026.11.9 | Unicode and recursive patterns over three launches |
+| ContourPy | 1.3.3 with pinned upstream pybind11 fork | Contour generation over three launches |
 | Kiwi | 1.5.1, publisher iOS wheels | Constraint solver runtime check |
 | Pico | 5.09 / Alpine 2.26 | Three architecture slices; 20 edit/save, UTF-8, descriptor and signal-handler checks |
 
@@ -93,6 +96,44 @@ python3 scripts/build-upstream-scipy.py --simulator
 The Cython module-state patch handles a retained extension module after
 `Py_Finalize` clears its dictionary and a new main interpreter reuses its ID.
 NumPy and SciPy use per-module state and recreate finalized modules. The combined
-23-command Simulator integration run passes, including interpreter reentry,
+33-command Simulator integration run passes, including interpreter reentry,
 package operations, pip installation, IPython and HTTPS. Both device packages
 also compile; this is not a claim of physical-device runtime validation.
+
+`build-upstream-lxml.py` builds a single native library with all seven extension
+entry points. It statically links the XML libraries so each Python interpreter
+owns its XML callbacks, preserves HTML cleaning through `lxml_html_clean`, and
+checks all entry points before packaging. Build the dependencies first:
+
+```sh
+python3 scripts/build-ios-xml.py
+python3 scripts/build-upstream-lxml.py
+python3 scripts/build-ios-xml.py --simulator
+python3 scripts/build-upstream-lxml.py --simulator
+python3 scripts/build-upstream-regex.py
+python3 scripts/build-upstream-regex.py --simulator
+python3 scripts/build-upstream-contourpy.py
+python3 scripts/build-upstream-contourpy.py --simulator
+```
+
+ContourPy requires the pinned `cpython/packages/pybind11` submodule. Its upstream
+thread-local internals fix is essential: the prebuilt ContourPy wheel crashed
+on the third interpreter launch. `prepare-ios-pybind11.py` installs that fork
+into an isolated build prefix, leaving the host package environment intact.
+
+`install-pep621-metadata.py` preserves upstream package versions, dependencies
+and entry points for Meson builds, so pip recognizes the bundled native packages.
+The Cython reload fix handles both cleared dictionaries and fully cleared
+modules. Use `python-upstream-build-requirements.txt` for the host Python venv.
+
+Build the isolated Simulator test app from the staged payload with:
+
+```sh
+python3 scripts/prepare-python-simulator-smoke.py
+xcrun simctl install booted build/python/smoke-simulator/PythonSmoke.app
+xcrun simctl launch booted sevenlayercookie.a-Shell-mini.PythonSmoke
+```
+
+Read `Documents/python-results.txt` in the test app's data container. Each launch
+clears the previous log. This harness does not replace physical-device or full
+app verification.
