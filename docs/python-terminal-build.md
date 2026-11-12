@@ -36,7 +36,9 @@ For signing, pass your local `-xcconfig Configuration.xcconfig` and the existing
 `ASHELL_INFOPLIST_FILE` overrides. Keep extension deployment targets at their
 project values; do not globally override `IPHONEOS_DEPLOYMENT_TARGET`.
 Run `scripts/prepare-testflight-archive.py` after archiving and before exporting
-with the existing internal-only TestFlight export settings.
+with the existing internal-only TestFlight export settings. This repairs legacy
+libssh2 metadata, sets framework signature identifiers from their bundle IDs,
+and aligns extension versions with the containing app.
 
 ## Validation
 
