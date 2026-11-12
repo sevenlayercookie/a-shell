@@ -1,0 +1,52 @@
+--- a/setup.py
++++ b/setup.py
+@@ -71,6 +71,11 @@
+ from _common import WINDOWS  # noqa: E402
+ from _common import hilite  # noqa: E402
+ 
++
++# The build interpreter runs on macOS; the extensions target iOS.
++if os.environ.get("ASHELL_CROSS_IOS") == "1":
++    MACOS = False
++    IPHONEOS = True
+ 
+ PYPY = '__pypy__' in sys.builtin_module_names
+ PY36_PLUS = sys.version_info[:2] >= (3, 6)
+@@ -174,7 +179,7 @@
+     return decode_input(stdout_data).strip()
+ 
+ def get_xcode_isysroot():
+-    return run_command('xcrun', "--sdk", "iphoneos", '--show-sdk-path')
++    return os.environ.get('SDKROOT') or run_command('xcrun', '--sdk', 'iphoneos', '--show-sdk-path')
+ 
+ VERSION = get_version()
+ macros.append(('PSUTIL_VERSION', int(VERSION.replace('.', ''))))
+@@ -498,14 +503,16 @@
+             get_xcode_isysroot(),
+             "-arch", 
+             "arm64", 
+-            "-miphoneos-version-min=14.0",
++            ("-mios-simulator-version-min=15.0" if os.environ.get("ASHELL_SIMULATOR") == "1"
++             else "-miphoneos-version-min=15.0"),
+         ],
+         extra_link_args=[
+             '-isysroot', 
+             get_xcode_isysroot(),
+             "-arch", 
+             "arm64", 
+-            "-miphoneos-version-min=14.0",
++            ("-mios-simulator-version-min=15.0" if os.environ.get("ASHELL_SIMULATOR") == "1"
++             else "-miphoneos-version-min=15.0"),
+             '-framework',
+             'CoreFoundation',
+             '-framework',
+@@ -562,7 +569,8 @@
+             get_xcode_isysroot(),
+             "-arch", 
+             "arm64", 
+-            "-miphoneos-version-min=14.0",
++            ("-mios-simulator-version-min=15.0" if os.environ.get("ASHELL_SIMULATOR") == "1"
++             else "-miphoneos-version-min=15.0"),
+         ]
+ 
+     extensions = [ext, posix_extension]

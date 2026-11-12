@@ -1,0 +1,25 @@
+--- a/psutil/arch/ios/proc.c
++++ b/psutil/arch/ios/proc.c
+@@ -249,15 +249,19 @@
+     pid_t pid;
+     uint64_t total_user;
+     uint64_t total_system;
+-    unsigned int info_count = TASK_BASIC_INFO_COUNT;
+-    struct task_basic_info tasks_info;
++    unsigned int info_count = MACH_TASK_BASIC_INFO_COUNT;
++    mach_task_basic_info_data_t tasks_info;
+     int err;
+ 
+     if (! PyArg_ParseTuple(args, _Py_PARSE_PID, &pid))
+         return NULL;
++    if (pid != getpid()) {
++        AccessDenied("task_info is available only for the current process on iOS");
++        return NULL;
++    }
+     // on iOS, we don't have acces to proc_pidinfo. This attempts to replace it with task_info.
+     // if (psutil_proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &pti, sizeof(pti)) <= 0) return NULL;
+-    info_count = TASK_BASIC_INFO_COUNT;
++    info_count = MACH_TASK_BASIC_INFO_COUNT;
+ 
+     err = task_info(mach_task_self_, MACH_TASK_BASIC_INFO, (task_info_t)&tasks_info,
+                     &info_count);

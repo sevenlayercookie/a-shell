@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Install an iOS wheel and wrap native extensions for both a-Shell interpreters."""
 import argparse
+import configparser
 import hashlib
 import importlib.util
 from pathlib import Path
@@ -9,6 +10,7 @@ import shutil
 import subprocess
 import tempfile
 import zipfile
+from python_packaging_utils import install_console_scripts
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location('python_packaging', ROOT / 'scripts/package-python-runtime.py')
@@ -93,6 +95,13 @@ def main():
                 shutil.copytree(path, site / path.name, dirs_exist_ok=True)
             else:
                 shutil.copy2(path, site / path.name)
+        for metadata in unpacked.glob('*.dist-info'):
+            config = configparser.ConfigParser(interpolation=None)
+            config.optionxform = str
+            config.read(metadata / 'entry_points.txt')
+            for group in ['console_scripts', 'gui_scripts']:
+                if config.has_section(group):
+                    install_console_scripts(dict(config[group]), args.library.resolve())
     print(args.wheel.name + ': installed ' + str(len(native)) + ' native modules for both interpreters')
 
 if __name__ == '__main__':

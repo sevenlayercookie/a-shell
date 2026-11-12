@@ -11,6 +11,7 @@ import shutil
 import tomllib
 
 from pyproject_metadata import StandardMetadata
+from python_packaging_utils import install_console_scripts
 
 
 def main():
@@ -20,11 +21,14 @@ def main():
     parser.add_argument('--simulator', action='store_true')
     parser.add_argument('--package', action='append', default=[])
     parser.add_argument('--version', help='Version resolved by the upstream build')
+    parser.add_argument('--require', action='append', default=[], help='Runtime dependency selected by this build variant')
     args = parser.parse_args()
     data = tomllib.loads((args.source / 'pyproject.toml').read_text())
     if args.version:
         data['project']['version'] = args.version
         data['project']['dynamic'] = [key for key in data['project'].get('dynamic', []) if key != 'version']
+    if args.require:
+        data['project']['dependencies'] = list(data['project'].get('dependencies', [])) + args.require
     metadata = StandardMetadata.from_pyproject(data, project_dir=args.source)
     if metadata.version is None:
         raise SystemExit('Resolve the upstream dynamic version before installing metadata')
@@ -55,6 +59,7 @@ def main():
         entrypoints['console_scripts'] = metadata.scripts
     if metadata.gui_scripts:
         entrypoints['gui_scripts'] = metadata.gui_scripts
+    install_console_scripts(metadata.scripts | metadata.gui_scripts, args.site.parents[2])
     if entrypoints.sections():
         with (directory / 'entry_points.txt').open('w') as output:
             entrypoints.write(output)

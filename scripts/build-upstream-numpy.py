@@ -38,7 +38,7 @@ def main():
                         '--python', str(python)], check=True)
         flags = ['-target', triple, '-isysroot', sdk, '-I' + str(config_build),
                  '-I' + str(ROOT / 'cpython/Include'), '-I' + str(ROOT / 'build/python/deps/include'),
-                 '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1', '-DCYTHON_USE_DICT_VERSIONS=0',
+                 '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1', '-DCYTHON_USE_TYPE_SPECS=1', '-DCYTHON_USE_DICT_VERSIONS=0',
                  '-DCYTHON_USE_PYTYPE_LOOKUP=0']
         link = ['-target', triple, '-isysroot', sdk, '-F' + str(payload / 'Frameworks'),
                 '-framework', 'Python', '-F' + str(deps), '-framework', 'ios_system']

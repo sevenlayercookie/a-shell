@@ -58,7 +58,7 @@ def main():
         sdk = subprocess.check_output(['xcrun', '--sdk', sdk_name, '--show-sdk-path'], text=True).strip()
         flags = ['-target', triple, '-isysroot', sdk, '-I' + str(config),
                  '-I' + str(ROOT / 'cpython/Include'), '-I' + str(ROOT / 'build/python/deps/include'),
-                 '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1',
+                 '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1', '-DCYTHON_USE_TYPE_SPECS=1',
                  '-DCYTHON_USE_DICT_VERSIONS=0', '-DCYTHON_USE_PYTYPE_LOOKUP=0']
         link = ['-target', triple, '-isysroot', sdk, '-F' + str(payload / 'Frameworks'),
                 '-framework', 'Python', '-F' + str(deps), '-framework', 'ios_system',

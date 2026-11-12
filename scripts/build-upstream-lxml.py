@@ -40,7 +40,7 @@ def main():
     config = ROOT / ('build/python/simulator' if args.simulator else 'build/python/ios')
     deps = ROOT / ('build/python/simulator-deps' if args.simulator else 'build/python/deps')
     flags = shlex.join(['-target', triple, '-isysroot', sdk, '-I' + str(config),
-                        '-I' + str(ROOT / 'cpython/Include'), '-I' + str(ROOT / 'build/python/deps/include'), '-O2', '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1',
+                        '-I' + str(ROOT / 'cpython/Include'), '-I' + str(ROOT / 'build/python/deps/include'), '-O2', '-DCYTHON_PEP489_MULTI_PHASE_INIT=1', '-DCYTHON_USE_MODULE_STATE=1', '-DCYTHON_USE_TYPE_SPECS=1',
                         '-DCYTHON_USE_DICT_VERSIONS=0', '-DCYTHON_USE_PYTYPE_LOOKUP=0'])
     linker = shlex.join(['xcrun', '--sdk', sdk_name, 'clang', '-target', triple, '-isysroot', sdk,
                          '-dynamiclib', '-undefined', 'error', '-F' + str(base / platform / 'Frameworks'),

@@ -17,6 +17,11 @@ Current verified components:
 | lxml | 6.1.3; static libxml2 2.9.13 and libxslt 1.1.35 | XPath, XSLT, objectify, HTML cleaning and three interpreter launches |
 | regex | 2026.11.9 | Unicode and recursive patterns over three launches |
 | ContourPy | 1.3.3 with pinned upstream pybind11 fork | Contour generation over three launches |
+| Matplotlib | pinned upstream 800b734626; 3.10.0.dev18 | Nine native extensions; PNG/SVG/PDF, fonts, contours and triangulation across three launches |
+| WordCloud | 1.9.6 | PNG rendering and three launches; command-line help |
+| psutil | upstream iOS fork 7.0.0 | CPU, system memory, current-process RSS and disk usage across three launches |
+| Argon2 | bindings 26.1.0; argon2-cffi 25.1.0 | Password hash/verify and raw Argon2id across three launches |
+| PyZMQ | 27.3.0; ZeroMQ 4.3.5; libsodium 1.0.22 | Encrypted CURVE loopback and multipart messages across three launches |
 | Kiwi | 1.5.1, publisher iOS wheels | Constraint solver runtime check |
 | Pico | 5.09 / Alpine 2.26 | Three architecture slices; 20 edit/save, UTF-8, descriptor and signal-handler checks |
 
@@ -96,7 +101,7 @@ python3 scripts/build-upstream-scipy.py --simulator
 The Cython module-state patch handles a retained extension module after
 `Py_Finalize` clears its dictionary and a new main interpreter reuses its ID.
 NumPy and SciPy use per-module state and recreate finalized modules. The combined
-33-command Simulator integration run passes, including interpreter reentry,
+50-command Simulator integration run passes, including interpreter reentry,
 package operations, pip installation, IPython and HTTPS. Both device packages
 also compile; this is not a claim of physical-device runtime validation.
 
@@ -137,3 +142,32 @@ xcrun simctl launch booted sevenlayercookie.a-Shell-mini.PythonSmoke
 Read `Documents/python-results.txt` in the test app's data container. Each launch
 clears the previous log. This harness does not replace physical-device or full
 app verification.
+
+## Additional package builds
+
+```sh
+python3 scripts/install-upstream-pure-wheels.py
+python3 scripts/build-upstream-matplotlib.py
+python3 scripts/build-upstream-wordcloud.py
+python3 scripts/build-upstream-psutil.py
+python3 scripts/build-upstream-argon2.py
+python3 scripts/build-upstream-pyzmq.py
+```
+
+Each native builder also accepts `--simulator`. The pure-wheel installer stages
+both platforms from the SHA-pinned manifest. It includes the plotting and
+password-hashing dependencies and preserves their console entry points.
+`f2py -v` and `wordcloud_cli --help` are part of the runtime suite.
+
+All source-built Cython packages use per-module state **and heap types**
+(`CYTHON_USE_TYPE_SPECS=1`). Static Cython types retain mutated method dictionaries
+after interpreter shutdown; the longer suite exposed that problem in SciPy's
+shared utility module. The 50-command suite passes with fresh heap types.
+
+The psutil iOS port's current-process memory query now uses matching
+`MACH_TASK_BASIC_INFO` structure and count values. Other-process queries remain
+restricted by the iOS port. No extra process-inspection entitlement is needed.
+
+ZeroMQ statically includes the complete libraries and CURVE support. The iOS
+package selects the CFFI backend, matching upstream's framework layout. Native
+frameworks link directly to the matching `Python` or `pythonA` runtime.
