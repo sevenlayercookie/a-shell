@@ -7,9 +7,6 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# The source-built pico currently links Apple's private terminfo entry points.
-# Keep it out of App Store/TestFlight profiles until its terminal backend is ported.
-DEFERRED_FRAMEWORKS = {'pico.framework', 'pico.xcframework'}
 
 def main():
     source = ROOT / 'a-Shell.xcodeproj'
@@ -47,8 +44,7 @@ def main():
             reference = objects.get(build_file, {}).get('fileRef')
             file = objects.get(reference, {})
             path = location(reference)
-            if path and (path.name in DEFERRED_FRAMEWORKS or
-                         (not path.exists() and (file.get('path', '').endswith(('.framework', '.xcframework')) or file.get('path') == 'Resources/proj'))):
+            if path and not path.exists() and (file.get('path', '').endswith(('.framework', '.xcframework')) or file.get('path') == 'Resources/proj'):
                 removed[build_file] = str(path.relative_to(ROOT))
             else:
                 retained.append(build_file)

@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/build-pico.sh'
       - 'patches/pico-ios.patch'
+      - 'patches/ncurses-ios.patch'
       - 'tests/pico/**'
       - 'ci/audit-artifact.py'
       - '.github/workflows/pico-framework.yml'

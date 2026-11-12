@@ -3,8 +3,9 @@
 The terminal profile builds the real `a-Shell-mini` and `a-Shell` targets with
 CPython 3.13, pip, IPython, requests, and the available terminal frameworks.
 SciPy, scikit-learn, and other missing native scientific extensions are deferred.
-Pico is also deferred: its current terminal backend imports private Apple
-terminfo APIs and fails TestFlight validation. Vim remains available.
+Pico now uses a statically linked, vendored terminfo implementation and is
+included when its framework has been built. Its reentry tests cover 20 editor
+invocations, UTF-8, descriptors, and signal handlers.
 The generated command dictionary removes commands whose frameworks are absent.
 `Library/python-terminal-profile.json` records exactly what each app contains.
 

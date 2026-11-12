@@ -14,6 +14,7 @@ fetch https://alpineapp.email/alpine/release/src/alpine-2.26.tar.xz c0779c2be6c4
 fetch https://raw.githubusercontent.com/holzschu/ios_system/b51dd90d778499b3592258988423008515282196/ios_error.h 51d46b912eb30399cbb5c36c8c8f15eb1a44adcfc9ee581304ac9d3739a84716 "$build/downloads/ios_error.h"
 fetch https://raw.githubusercontent.com/holzschu/ios_system/b51dd90d778499b3592258988423008515282196/LICENSE 62efa5b983ed9d140ce90e39da6d37e2b86ebcdf8530ac78c4705e1fdc19c804 "$build/downloads/ios-system-LICENSE"
 fetch https://github.com/holzschu/ios_system/releases/download/v3.0.5/ios_system.xcframework.zip d429e68102926f58bedd8e8b7105dcd169478cd6da1cef494a5f468482d1c8f5 "$build/downloads/ios_system.xcframework.zip"
+fetch https://invisible-mirror.net/archives/ncurses/ncurses-6.6.tar.gz 355b4cbbed880b0381a04c46617b7656e362585d52e9cf84a67e2009b749ff11 "$build/downloads/ncurses-6.6.tar.gz"
 unzip -oq "$build/downloads/ios_system.xcframework.zip" -d "$build/dependencies"
 for target in iphoneos-arm64 iphonesimulator-arm64 iphonesimulator-x86_64; do
   sdk=${target%-*}
@@ -42,6 +43,30 @@ for target in iphoneos-arm64 iphonesimulator-arm64 iphonesimulator-x86_64; do
   cc=$(xcrun --sdk "$sdk" -f clang)
   ios_frameworks="$build/dependencies/ios_system.xcframework/$slice"
   flags="-target $triple -isysroot $sdk_path -O2 -fPIC -DPICO_IOS -Wno-implicit-function-declaration -Wno-int-conversion"
+  # System terminfo symbols are private on iOS. Build the open-source terminfo
+  # implementation into Pico instead of importing them from Apple's ncurses.
+  terminfo_source="$work/ncurses"
+  if [[ ! -d $terminfo_source ]]; then
+    mkdir -p "$terminfo_source"
+    tar -xzf "$build/downloads/ncurses-6.6.tar.gz" --strip-components 1 -C "$terminfo_source"
+  fi
+  if patch --forward --batch --dry-run -p1 -d "$terminfo_source" < "$root/patches/ncurses-ios.patch" >/dev/null 2>&1; then
+    patch --forward --batch -p1 -d "$terminfo_source" < "$root/patches/ncurses-ios.patch"
+  else
+    patch --batch -R --dry-run -p1 -d "$terminfo_source" < "$root/patches/ncurses-ios.patch"
+  fi
+  (
+    cd "$terminfo_source"
+    CC="$cc" CPP="$cc -E -target $triple -isysroot $sdk_path" \
+      CFLAGS="-target $triple -isysroot $sdk_path -O2 -fPIC" \
+      LDFLAGS="-target $triple -isysroot $sdk_path" \
+      ./configure --host="$host_arch-apple-ios" --with-termlib --enable-widec --with-ospeed=unsigned --disable-mixed-case \
+        --without-shared --without-debug --without-cxx --without-cxx-binding \
+        --without-ada --without-progs --without-tests --without-manpages \
+        --disable-db-install --without-dlsym --disable-stripping
+    make -j4 -C include
+    make -j4 -C ncurses
+  ) > "$build/dist/$target-terminfo-build.log" 2>&1
   # The SDK ships the versioned stub without the unversioned configure name.
   mkdir -p "$work/sdk-libs"
   ln -sf "$sdk_path/usr/lib/libncurses.5.4.tbd" "$work/sdk-libs/libncurses.tbd"
@@ -72,7 +97,7 @@ for target in iphoneos-arm64 iphonesimulator-arm64 iphonesimulator-x86_64; do
     "$cc" -target "$triple" -isysroot "$sdk_path" -dynamiclib -Wl,-undefined,error \
       -Wl,-install_name,@rpath/pico.framework/pico -o "$framework/pico" \
       pico/main.o pico/utf8stub.o c-client/utf8.o pico/libpico.a pico/osdep/libpicoosd.a \
-      pith/osdep/libpithosd.a pith/charconv/libpithcc.a -lncurses.5.4 -liconv \
+      pith/osdep/libpithosd.a pith/charconv/libpithcc.a "$terminfo_source/lib/libtinfow.a" -liconv \
       -F"$ios_frameworks" -framework ios_system
     cat > "$framework/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -92,10 +117,15 @@ PLIST
     cp NOTICE "$framework/Alpine-NOTICE"
     cp imap/NOTICE "$framework/IMAP-NOTICE"
     cp "$build/downloads/ios-system-LICENSE" "$framework/ios-system-LICENSE"
+    cp "$terminfo_source/COPYING" "$framework/ncurses-LICENSE"
     lipo "$framework/pico" -verify_arch "$arch"
     nm -gU "$framework/pico" | grep ' _main$' >/dev/null
     if nm -j -u "$framework/pico" | grep -Ex '_(exit|_exit|fork|vfork|system|printf|putchar|puts)' >/dev/null; then
       echo 'Pico imports a process-global entry point' >&2
+      exit 1
+    fi
+    if nm -j -u "$framework/pico" | grep -Ex '_(setupterm|tgoto|tigetflag|tigetnum|tigetstr|tparm|tputs)' >/dev/null; then
+      echo 'Pico imports private system terminfo APIs' >&2
       exit 1
     fi
     xcrun vtool -show-build "$framework/pico" > "$build/dist/$target-platform.txt"

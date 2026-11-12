@@ -1,0 +1,135 @@
+--- a/ncurses/tinfo/comp_error.c
++++ b/ncurses/tinfo/comp_error.c
+@@ -41,6 +41,9 @@
+ #include <curses.priv.h>
+ 
+ #include <tic.h>
++
++extern __thread FILE *thread_stderr;
++extern void ios_exit(int) __attribute__((noreturn));
+ 
+ MODULE_ID("$Id: comp_error.c,v 1.45 2024/12/07 20:04:23 tom Exp $")
+ 
+@@ -101,15 +104,15 @@
+ static NCURSES_INLINE void
+ where_is_problem(void)
+ {
+-    fprintf(stderr, "\"%s\"", SourceName ? SourceName : "?");
++    fprintf(thread_stderr, "\"%s\"", SourceName ? SourceName : "?");
+     if (_nc_curr_line > 0)
+-	fprintf(stderr, ", line %d", _nc_curr_line);
++	fprintf(thread_stderr, ", line %d", _nc_curr_line);
+     if (_nc_curr_col > 0)
+-	fprintf(stderr, ", col %d", _nc_curr_col);
++	fprintf(thread_stderr, ", col %d", _nc_curr_col);
+     if (TermType != NULL && TermType[0] != '\0')
+-	fprintf(stderr, ", terminal '%s'", TermType);
+-    fputc(':', stderr);
+-    fputc(' ', stderr);
++	fprintf(thread_stderr, ", terminal '%s'", TermType);
++    fputc(':', thread_stderr);
++    fputc(' ', thread_stderr);
+ }
+ 
+ NCURSES_EXPORT(void)
+@@ -122,8 +125,8 @@
+ 
+     where_is_problem();
+     va_start(argp, fmt);
+-    vfprintf(stderr, fmt, argp);
+-    fprintf(stderr, "\n");
++    vfprintf(thread_stderr, fmt, argp);
++    fprintf(thread_stderr, "\n");
+     va_end(argp);
+ }
+ 
+@@ -134,10 +137,10 @@
+ 
+     where_is_problem();
+     va_start(argp, fmt);
+-    vfprintf(stderr, fmt, argp);
+-    fprintf(stderr, "\n");
++    vfprintf(thread_stderr, fmt, argp);
++    fprintf(thread_stderr, "\n");
+     va_end(argp);
+-    exit(EXIT_FAILURE);
++    ios_exit(EXIT_FAILURE);
+ }
+ 
+ NCURSES_EXPORT(void)
+@@ -147,8 +150,8 @@
+ 
+     where_is_problem();
+     va_start(argp, fmt);
+-    vfprintf(stderr, fmt, argp);
+-    fprintf(stderr, "\n");
++    vfprintf(thread_stderr, fmt, argp);
++    fprintf(thread_stderr, "\n");
+     va_end(argp);
+ 
+ #if defined(TRACE) || !defined(NDEBUG)
+@@ -160,7 +163,7 @@
+ #endif
+     /* Dumping core in production code is not a good idea.
+      */
+-    exit(EXIT_FAILURE);
++    ios_exit(EXIT_FAILURE);
+ }
+ 
+ #if NO_LEAKS
+--- a/ncurses/tinfo/lib_tputs.c
++++ b/ncurses/tinfo/lib_tputs.c
+@@ -52,6 +52,9 @@
+ #include <termcap.h>		/* ospeed */
+ #include <tic.h>
+ 
++extern __thread FILE *thread_stdout;
++extern int ios_fputc(int, FILE *);
++
+ MODULE_ID("$Id: lib_tputs.c,v 1.116 2025/01/12 00:41:56 tom Exp $")
+ 
+ NCURSES_EXPORT_VAR(char) PC = 0;              /* used by termcap library */
+@@ -217,14 +220,14 @@
+ NCURSES_SP_NAME(_nc_putchar) (NCURSES_SP_DCLx int ch)
+ {
+     (void) SP_PARM;
+-    return putchar(ch);
++    return ios_fputc(ch, thread_stdout);
+ }
+ 
+ #if NCURSES_SP_FUNCS
+ NCURSES_EXPORT(int)
+ _nc_putchar(int ch)
+ {
+-    return putchar(ch);
++    return ios_fputc(ch, thread_stdout);
+ }
+ #endif
+ 
+--- a/ncurses/tinfo/entries.c
++++ b/ncurses/tinfo/entries.c
+@@ -37,6 +37,8 @@
+ #include <ctype.h>
+ 
+ #include <tic.h>
++
++extern void ios_exit(int) __attribute__((noreturn));
+ 
+ MODULE_ID("$Id: entries.c,v 1.39 2024/12/14 23:48:20 tom Exp $")
+ 
+@@ -179,7 +181,7 @@
+ {
+     T((T_CALLED("_nc_free_tinfo(%d)"), code));
+     _nc_leaks_tinfo();
+-    exit(code);
++    ios_exit(code);
+ }
+ #endif
+ 
+@@ -190,5 +192,5 @@
+ #if NO_LEAKS
+     _nc_leaks_tinfo();
+ #endif
+-    exit(code);
++    ios_exit(code);
+ }

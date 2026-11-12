@@ -241,6 +241,6 @@ Font files are refreshed when running `config` or returning to the app. Removing
 
 ## Build Pico
 
-`bash scripts/build-pico.sh` builds Pico 5.09 from checksum-pinned Alpine 2.26 using Xcode and uv. The output under `.build/pico/dist` includes `pico.xcframework.zip`, checksums and an artifact audit. The framework targets iOS 14 with arm64 device and universal arm64/x86_64 Simulator slices. The framework includes the Apache-2.0 and ios_system BSD-3-Clause licenses and the Alpine and IMAP NOTICE files.
+`bash scripts/build-pico.sh` builds Pico 5.09 from checksum-pinned Alpine 2.26 using Xcode and uv. The output under `.build/pico/dist` includes `pico.xcframework.zip`, checksums and an artifact audit. The framework targets iOS 14 with arm64 device and universal arm64/x86_64 Simulator slices. The framework includes the Apache-2.0, ios_system BSD-3-Clause, and ncurses licenses and the Alpine and IMAP NOTICE files. Terminfo is built from checksum-pinned ncurses 6.6 and linked statically: Pico does not import Apple’s private system terminfo APIs. The build also rejects process-global exit/output calls.
 
 The port uses ios_system streams, terminal geometry and interactive mode. It restores signal handlers on command exit. Job suspension reports an error. The workflow checks 20 edit/save invocations through ios_system, including UTF-8 file contents, reentry and descriptor counts, on an arm64 Simulator.
