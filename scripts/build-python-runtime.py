@@ -53,6 +53,11 @@ def main():
     if not ios.exists():
         raise SystemExit('Resolve the xcfs Swift package in Xcode first: missing ' + str(ios))
     shutil.copytree(ios, deps / 'ios_system.framework', dirs_exist_ok=True)
+    patch = ['patch', '--batch', '-p1', '-i', str(ROOT / 'patches/cpython-preserve-type-version-tags.patch')]
+    if subprocess.run([*patch, '--forward', '--dry-run'], cwd=ROOT / 'cpython', capture_output=True).returncode == 0:
+        subprocess.run([*patch, '--forward'], cwd=ROOT / 'cpython', check=True)
+    elif subprocess.run([*patch, '--reverse', '--dry-run'], cwd=ROOT / 'cpython', capture_output=True).returncode:
+        raise SystemExit('CPython reentry patch does not match the pinned source')
     if not args.skip_compile:
         build = base / 'ios'
         (build / 'Modules').mkdir(parents=True, exist_ok=True)

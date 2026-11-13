@@ -1,0 +1,18 @@
+--- a/astropy/config/paths.py
++++ b/astropy/config/paths.py
+@@ -209,11 +209,13 @@
+         )
+ 
+     def legacy_default_base_node(self, namespace: str) -> Path:
+-        return Path.home() / f".{namespace}" / self.dirtype.as_str()
++        home = Path.home() / "Documents" if sys.platform == "ios" else Path.home()
++        return home / f".{namespace}" / self.dirtype.as_str()
+ 
+     def default_base_node(self) -> Path:
+         # default to a XDG-compliant scheme
+-        return Path.home() / f".{self.dirtype.as_str()}"
++        home = Path.home() / "Documents" if sys.platform == "ios" else Path.home()
++        return home / f".{self.dirtype.as_str()}"
+ 
+     def find_directory_elements(self, namespace: str) -> _DirectoryElements:
+         ns = _Namespace.from_str(namespace)

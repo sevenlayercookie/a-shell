@@ -22,6 +22,9 @@ Current verified components:
 | psutil | upstream iOS fork 7.0.0 | CPU, system memory, current-process RSS and disk usage across three launches |
 | Argon2 | bindings 26.1.0; argon2-cffi 25.1.0 | Password hash/verify and raw Argon2id across three launches |
 | PyZMQ | 27.3.0; ZeroMQ 4.3.5; libsodium 1.0.22 | Encrypted CURVE loopback and multipart messages across three launches |
+| pandas | 2.3.1, compatible with pinned upstream Matplotlib | CSV/JSON, groupby, nullable integers, DST timezones, rolling windows and plotting across three launches |
+| ERFA | pyerfa 2.0.1.5 | Calendar conversion and vectorized spherical coordinates across three launches |
+| Astropy | 8.0.2 | Units, time, coordinates, FITS, tables, WCS and convolution across three launches |
 | Kiwi | 1.5.1, publisher iOS wheels | Constraint solver runtime check |
 | Pico | 5.09 / Alpine 2.26 | Three architecture slices; 20 edit/save, UTF-8, descriptor and signal-handler checks |
 
@@ -101,7 +104,7 @@ python3 scripts/build-upstream-scipy.py --simulator
 The Cython module-state patch handles a retained extension module after
 `Py_Finalize` clears its dictionary and a new main interpreter reuses its ID.
 NumPy and SciPy use per-module state and recreate finalized modules. The combined
-50-command Simulator integration run passes, including interpreter reentry,
+59-command Simulator integration run passes, including interpreter reentry,
 package operations, pip installation, IPython and HTTPS. Both device packages
 also compile; this is not a claim of physical-device runtime validation.
 
@@ -162,7 +165,7 @@ password-hashing dependencies and preserves their console entry points.
 All source-built Cython packages use per-module state **and heap types**
 (`CYTHON_USE_TYPE_SPECS=1`). Static Cython types retain mutated method dictionaries
 after interpreter shutdown; the longer suite exposed that problem in SciPy's
-shared utility module. The 50-command suite passes with fresh heap types.
+shared utility module. The 59-command suite passes with fresh heap types.
 
 The psutil iOS port's current-process memory query now uses matching
 `MACH_TASK_BASIC_INFO` structure and count values. Other-process queries remain
@@ -171,3 +174,33 @@ restricted by the iOS port. No extra process-inspection entitlement is needed.
 ZeroMQ statically includes the complete libraries and CURVE support. The iOS
 package selects the CFFI backend, matching upstream's framework layout. Native
 frameworks link directly to the matching `Python` or `pythonA` runtime.
+
+Pandas uses C++17, target NumPy headers and local C helper linkage when its
+extensions are consolidated. `ios-cython.py` corrects Cython 3.1.6's cached
+memoryview traversal and gives generated divmod sentinels local linkage.
+The astronomy builder applies the same traversal correction to setuptools
+builds and preserves upstream's Documents-based writable directory behavior.
+
+CPython's static type version counter now survives `Py_Finalize`/`Py_Initialize`.
+Some extension types retain their old version tags; resetting the counter could
+assign the same tag to another type and return an unrelated attribute descriptor.
+The 59-command run includes the NumPy masked-array lookup that exposed this
+collision after pandas was added. Both device and Simulator runtimes rebuild
+with `patches/cpython-preserve-type-version-tags.patch`.
+
+```sh
+python3 scripts/build-upstream-pandas.py
+python3 scripts/build-upstream-pandas.py --simulator
+python3 scripts/build-upstream-astronomy.py pyerfa
+python3 scripts/build-upstream-astronomy.py pyerfa --simulator
+python3 scripts/build-upstream-astronomy.py astropy
+python3 scripts/build-upstream-astronomy.py astropy --simulator
+python3 scripts/build-upstream-pyyaml.py
+python3 scripts/rebuild-python-reentry.py
+python3 scripts/rebuild-python-reentry.py --simulator
+```
+
+PyYAML retains the portable backend used by upstream's Python package layout.
+Astropy IERS tables and pandas timezone data are checksum-pinned in the pure
+wheel manifest. Full app integration and the remaining packages/tools are still
+pending; TestFlight 608 remains the earlier reduced build.

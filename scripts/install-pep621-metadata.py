@@ -43,9 +43,9 @@ def main():
     (directory / 'WHEEL').write_text('Wheel-Version: 1.0\nGenerator: a-shell\nRoot-Is-Purelib: false\n'
                                    + 'Tag: cp313-cp313-ios_15_0_arm64_' + platform + '\n')
     (directory / 'INSTALLER').write_text('a-shell\n')
-    for pattern in ['LICENSE*', 'COPYING*', 'NOTICE*']:
+    for pattern in ['LICENSE*', 'COPYING*', 'NOTICE*', *data['project'].get('license-files', [])]:
         for license_path in args.source.glob(pattern):
-            destination = directory / 'licenses' / license_path.name
+            destination = directory / 'licenses' / license_path.relative_to(args.source)
             destination.parent.mkdir(parents=True, exist_ok=True)
             if license_path.is_dir():
                 shutil.copytree(license_path, destination, dirs_exist_ok=True)

@@ -1,0 +1,18 @@
+--- a/Python/pystate.c
++++ b/Python/pystate.c
+@@ -449,11 +449,15 @@
+     // bpo-42882: Preserve next_index value if Py_Initialize()/Py_Finalize()
+     // is called multiple times.
+     Py_ssize_t unicode_next_index = runtime->unicode_state.ids.next_index;
++    // Static extension types can survive Py_Finalize with a version tag.
++    // Reusing that tag for another type makes attribute-cache hits ambiguous.
++    unsigned int next_type_version_tag = runtime->types.next_version_tag;
+ 
+     if (runtime->_initialized) {
+         // Py_Initialize() must be running again.
+         // Reset to _PyRuntimeState_INIT.
+         memcpy(runtime, &initial, sizeof(*runtime));
++        runtime->types.next_version_tag = next_type_version_tag;
+         // Preserve the cookie from the original runtime.
+         memcpy(runtime->debug_offsets.cookie, _Py_Debug_Cookie, 8);
+         assert(!runtime->_initialized);

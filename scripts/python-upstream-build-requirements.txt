@@ -9,3 +9,5 @@ pyproject-metadata==0.12.1
 setuptools==84.2.1
 setuptools-scm==8.3.1
 wheel==0.48.0
+versioneer==0.29
+extension-helpers==1.5.0
