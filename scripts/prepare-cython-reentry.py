@@ -11,17 +11,19 @@ def prepare(python):
     location = subprocess.check_output(
         [str(python), '-c', 'import Cython; print(Cython.__path__[0])'], text=True).strip()
     parent = Path(location).parent
-    patch = ROOT / 'patches/cython-reinitialize-module-state.patch'
-    command = ['patch', '--batch', '-p1', '-i', str(patch)]
-    check = subprocess.run([*command, '--forward', '--dry-run'], cwd=parent,
-                           capture_output=True, text=True)
-    if check.returncode == 0:
-        subprocess.run([*command, '--forward'], cwd=parent, check=True)
-    else:
-        reverse = subprocess.run([*command, '--reverse', '--dry-run'], cwd=parent,
-                                 capture_output=True, text=True)
-        if reverse.returncode:
-            raise SystemExit('Cython reload patch does not match this build environment:\n' + check.stdout + check.stderr)
+    for name in ('cython-reinitialize-module-state.patch', 'cython-module-state-nogil.patch'):
+        patch = ROOT / 'patches' / name
+        command = ['patch', '--batch', '-p1', '-i', str(patch)]
+        check = subprocess.run([*command, '--forward', '--dry-run'], cwd=parent,
+                               capture_output=True, text=True)
+        if check.returncode == 0:
+            subprocess.run([*command, '--forward'], cwd=parent, check=True)
+        else:
+            reverse = subprocess.run([*command, '--reverse', '--dry-run'], cwd=parent,
+                                     capture_output=True, text=True)
+            if reverse.returncode:
+                raise SystemExit('Cython patch does not match this build environment: ' + name + '\n' + check.stdout + check.stderr)
+
 
 
 if __name__ == '__main__':

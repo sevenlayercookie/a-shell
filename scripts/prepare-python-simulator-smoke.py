@@ -32,7 +32,9 @@ def main():
             shutil.copytree(framework, frameworks / framework.name)
     deps = ROOT / 'build/python/simulator-deps'
     shutil.copytree(deps / 'ios_system.framework', frameworks / 'ios_system.framework')
-    shutil.copy2(ROOT / 'Resources_mini/commandDictionary.plist', app / 'commandDictionary.plist')
+    commands = plistlib.loads((ROOT / 'Resources_mini/commandDictionary.plist').read_bytes())
+    commands['pythonA'] = ['pythonA.framework/pythonA', 'Py_BytesMain', '3bBc:dEhiJm:OQ:RsStuUvVW:xX?', 'file']
+    (app / 'commandDictionary.plist').write_bytes(plistlib.dumps(commands))
     info = {
         'CFBundleIdentifier': IDENTIFIER, 'CFBundleExecutable': 'PythonSmoke',
         'CFBundleName': 'PythonSmoke', 'CFBundlePackageType': 'APPL',

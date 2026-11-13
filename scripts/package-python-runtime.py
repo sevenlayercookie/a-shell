@@ -4,6 +4,7 @@ import argparse
 import json
 import plistlib
 import shutil
+import struct
 import subprocess
 from pathlib import Path
 
@@ -13,6 +14,10 @@ def command(*args):
     subprocess.run([str(a) for a in args], check=True, stdout=subprocess.DEVNULL)
 
 def framework(name, binary, directory, python_library='Python', platform='iPhoneOS'):
+    with binary.open('rb') as stream:
+        header = stream.read(16)
+    if len(header) != 16 or header[:4] != b'\xcf\xfa\xed\xfe' or struct.unpack('<I', header[12:16])[0] != 6:
+        raise ValueError('Framework requires a thin Mach-O dylib: ' + str(binary))
     dest = directory / (name + '.framework')
     dest.mkdir(parents=True, exist_ok=True)
     shutil.copy2(binary, dest / name)

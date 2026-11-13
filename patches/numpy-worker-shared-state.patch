@@ -1,0 +1,147 @@
+diff --git a/numpy/_core/src/common/npy_import.c b/numpy/_core/src/common/npy_import.c
+index 7b8933d38c..a38415199a 100644
+--- a/numpy/_core/src/common/npy_import.c
++++ b/numpy/_core/src/common/npy_import.c
+@@ -9,7 +9,8 @@
+ #if !TARGET_OS_IPHONE
+ NPY_VISIBILITY_HIDDEN npy_runtime_imports_struct npy_runtime_imports;
+ #else
+-NPY_VISIBILITY_HIDDEN __thread npy_runtime_imports_struct npy_runtime_imports;
++NPY_VISIBILITY_HIDDEN __thread npy_runtime_imports_struct npy_runtime_imports_owner;
++NPY_VISIBILITY_HIDDEN npy_runtime_imports_struct *npy_runtime_imports_shared;
+ #endif
+ 
+ NPY_NO_EXPORT int
+diff --git a/numpy/_core/src/common/npy_import.h b/numpy/_core/src/common/npy_import.h
+index 6758a7d9d4..29d71c22ea 100644
+--- a/numpy/_core/src/common/npy_import.h
++++ b/numpy/_core/src/common/npy_import.h
+@@ -49,7 +49,9 @@ typedef struct npy_runtime_imports_struct {
+ #if !TARGET_OS_IPHONE
+ NPY_VISIBILITY_HIDDEN extern npy_runtime_imports_struct npy_runtime_imports;
+ #else
+-NPY_VISIBILITY_HIDDEN extern __thread npy_runtime_imports_struct npy_runtime_imports;
++NPY_VISIBILITY_HIDDEN extern __thread npy_runtime_imports_struct npy_runtime_imports_owner;
++NPY_VISIBILITY_HIDDEN extern npy_runtime_imports_struct *npy_runtime_imports_shared;
++#define npy_runtime_imports (*npy_runtime_imports_shared)
+ #endif
+ 
+ /*! \brief Import a Python object.
+diff --git a/numpy/_core/src/multiarray/dtypemeta.h b/numpy/_core/src/multiarray/dtypemeta.h
+index 6fba3d118f..5f023c9b54 100644
+--- a/numpy/_core/src/multiarray/dtypemeta.h
++++ b/numpy/_core/src/multiarray/dtypemeta.h
+@@ -249,7 +249,9 @@ extern PyArray_DTypeMeta *_Void_dtype;
+ #if !TARGET_OS_IPHONE
+ extern PyArray_DTypeMeta PyArray_StringDType;
+ #else
+-extern __thread PyArray_DTypeMeta PyArray_StringDType;
++extern __thread PyArray_DTypeMeta PyArray_StringDType_owner;
++extern PyArray_DTypeMeta *PyArray_StringDType_shared;
++#define PyArray_StringDType (*PyArray_StringDType_shared)
+ #endif
+ /* Datetime/Timedelta */
+ #define PyArray_DatetimeDType (*(_Datetime_dtype))
+diff --git a/numpy/_core/src/multiarray/multiarraymodule.c b/numpy/_core/src/multiarray/multiarraymodule.c
+index 8876b45402..68e444a5b4 100644
+--- a/numpy/_core/src/multiarray/multiarraymodule.c
++++ b/numpy/_core/src/multiarray/multiarraymodule.c
+@@ -4824,7 +4824,8 @@ set_flaginfo(PyObject *d)
+ #if !TARGET_OS_IPHONE
+ NPY_VISIBILITY_HIDDEN npy_thread_unsafe_state_struct npy_thread_unsafe_state;
+ #else
+-NPY_VISIBILITY_HIDDEN __thread npy_thread_unsafe_state_struct npy_thread_unsafe_state;
++NPY_VISIBILITY_HIDDEN __thread npy_thread_unsafe_state_struct npy_thread_unsafe_state_owner;
++NPY_VISIBILITY_HIDDEN npy_thread_unsafe_state_struct *npy_thread_unsafe_state_shared;
+ #endif
+ 
+ #if TARGET_OS_IPHONE
+@@ -4870,6 +4871,16 @@ static struct PyModuleDef moduledef = {
+ 
+ /* Initialization function for the module */
+ PyMODINIT_FUNC PyInit__multiarray_umath(void) {
++#if TARGET_OS_IPHONE
++    /* Each bundled interpreter owns its NumPy dylib. Worker threads share
++       the importing thread's state; a later interpreter initializes new TLS. */
++    npy_interned_str_shared = &npy_interned_str_owner;
++    npy_static_pydata_shared = &npy_static_pydata_owner;
++    npy_static_cdata_shared = &npy_static_cdata_owner;
++    npy_runtime_imports_shared = &npy_runtime_imports_owner;
++    npy_thread_unsafe_state_shared = &npy_thread_unsafe_state_owner;
++    PyArray_StringDType_shared = &PyArray_StringDType_owner;
++#endif
+     PyObject *m, *d, *s;
+     PyObject *c_api;
+ 
+diff --git a/numpy/_core/src/multiarray/multiarraymodule.h b/numpy/_core/src/multiarray/multiarraymodule.h
+index d6e6cdb18b..6e0fba8ad8 100644
+--- a/numpy/_core/src/multiarray/multiarraymodule.h
++++ b/numpy/_core/src/multiarray/multiarraymodule.h
+@@ -83,7 +83,9 @@ typedef struct npy_thread_unsafe_state_struct {
+ #if !TARGET_OS_IPHONE
+ NPY_VISIBILITY_HIDDEN extern npy_thread_unsafe_state_struct npy_thread_unsafe_state;
+ #else
+-NPY_VISIBILITY_HIDDEN extern __thread npy_thread_unsafe_state_struct npy_thread_unsafe_state;
++NPY_VISIBILITY_HIDDEN extern __thread npy_thread_unsafe_state_struct npy_thread_unsafe_state_owner;
++NPY_VISIBILITY_HIDDEN extern npy_thread_unsafe_state_struct *npy_thread_unsafe_state_shared;
++#define npy_thread_unsafe_state (*npy_thread_unsafe_state_shared)
+ #endif
+ 
+ NPY_NO_EXPORT int
+diff --git a/numpy/_core/src/multiarray/npy_static_data.c b/numpy/_core/src/multiarray/npy_static_data.c
+index 86137c655b..0d4258d4ab 100644
+--- a/numpy/_core/src/multiarray/npy_static_data.c
++++ b/numpy/_core/src/multiarray/npy_static_data.c
+@@ -20,9 +20,12 @@ NPY_VISIBILITY_HIDDEN npy_interned_str_struct npy_interned_str;
+ NPY_VISIBILITY_HIDDEN npy_static_pydata_struct npy_static_pydata;
+ NPY_VISIBILITY_HIDDEN npy_static_cdata_struct npy_static_cdata;
+ #else
+-NPY_VISIBILITY_HIDDEN __thread npy_interned_str_struct npy_interned_str;
+-NPY_VISIBILITY_HIDDEN __thread npy_static_pydata_struct npy_static_pydata;
+-NPY_VISIBILITY_HIDDEN __thread npy_static_cdata_struct npy_static_cdata;
++NPY_VISIBILITY_HIDDEN __thread npy_interned_str_struct npy_interned_str_owner;
++NPY_VISIBILITY_HIDDEN npy_interned_str_struct *npy_interned_str_shared;
++NPY_VISIBILITY_HIDDEN __thread npy_static_pydata_struct npy_static_pydata_owner;
++NPY_VISIBILITY_HIDDEN npy_static_pydata_struct *npy_static_pydata_shared;
++NPY_VISIBILITY_HIDDEN __thread npy_static_cdata_struct npy_static_cdata_owner;
++NPY_VISIBILITY_HIDDEN npy_static_cdata_struct *npy_static_cdata_shared;
+ #endif
+ 
+ #define INTERN_STRING(struct_member, string)                             \
+diff --git a/numpy/_core/src/multiarray/npy_static_data.h b/numpy/_core/src/multiarray/npy_static_data.h
+index c5d31aa8ca..4ea7ee6a12 100644
+--- a/numpy/_core/src/multiarray/npy_static_data.h
++++ b/numpy/_core/src/multiarray/npy_static_data.h
+@@ -180,9 +180,15 @@ NPY_VISIBILITY_HIDDEN extern npy_interned_str_struct npy_interned_str;
+ NPY_VISIBILITY_HIDDEN extern npy_static_pydata_struct npy_static_pydata;
+ NPY_VISIBILITY_HIDDEN extern npy_static_cdata_struct npy_static_cdata;
+ #else
+-NPY_VISIBILITY_HIDDEN extern __thread npy_interned_str_struct npy_interned_str;
+-NPY_VISIBILITY_HIDDEN extern __thread npy_static_pydata_struct npy_static_pydata;
+-NPY_VISIBILITY_HIDDEN extern __thread npy_static_cdata_struct npy_static_cdata;
++NPY_VISIBILITY_HIDDEN extern __thread npy_interned_str_struct npy_interned_str_owner;
++NPY_VISIBILITY_HIDDEN extern npy_interned_str_struct *npy_interned_str_shared;
++#define npy_interned_str (*npy_interned_str_shared)
++NPY_VISIBILITY_HIDDEN extern __thread npy_static_pydata_struct npy_static_pydata_owner;
++NPY_VISIBILITY_HIDDEN extern npy_static_pydata_struct *npy_static_pydata_shared;
++#define npy_static_pydata (*npy_static_pydata_shared)
++NPY_VISIBILITY_HIDDEN extern __thread npy_static_cdata_struct npy_static_cdata_owner;
++NPY_VISIBILITY_HIDDEN extern npy_static_cdata_struct *npy_static_cdata_shared;
++#define npy_static_cdata (*npy_static_cdata_shared)
+ #endif
+ 
+ #ifdef __cplusplus
+diff --git a/numpy/_core/src/multiarray/stringdtype/dtype.c b/numpy/_core/src/multiarray/stringdtype/dtype.c
+index b8d07d8687..94c0ae37a4 100644
+--- a/numpy/_core/src/multiarray/stringdtype/dtype.c
++++ b/numpy/_core/src/multiarray/stringdtype/dtype.c
+@@ -817,7 +817,8 @@ PyArray_StringDType_hash(PyObject *self)
+ #if !TARGET_OS_IPHONE
+ PyArray_DTypeMeta PyArray_StringDType = {
+ #else
+-PyArray_DTypeMeta __thread PyArray_StringDType = {
++PyArray_DTypeMeta *PyArray_StringDType_shared;
++PyArray_DTypeMeta __thread PyArray_StringDType_owner = {
+ #endif
+         {{
+                 PyVarObject_HEAD_INIT(NULL, 0).tp_name =

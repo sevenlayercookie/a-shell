@@ -1,0 +1,26 @@
+--- a/statsmodels/meson.build
++++ b/statsmodels/meson.build
+@@ -1,22 +1,4 @@
+-incdir_numpy = run_command(
+-    py,
+-    [
+-        '-c',
+-        '''
+-import os
+-import numpy as np
+-try:
+-    # Check if include directory is inside the dir
+-    # e.g., a venv created inside the dir
+-    # If so, convert it to a relative path
+-    incdir = os.path.relpath(np.get_include())
+-except Exception:
+-    incdir = np.get_include()
+-print(incdir)
+-     ''',
+-    ],
+-    check: true,
+-).stdout().strip()
++incdir_numpy = meson.get_external_property('numpy-include-dir')
+ 
+ inc_np = include_directories(incdir_numpy)
+ inc_sm = include_directories('includes')

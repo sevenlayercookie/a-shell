@@ -204,3 +204,23 @@ PyYAML retains the portable backend used by upstream's Python package layout.
 Astropy IERS tables and pandas timezone data are checksum-pinned in the pure
 wheel manifest. Full app integration and the remaining packages/tools are still
 pending; TestFlight 608 remains the earlier reduced build.
+
+## Additional scientific packages
+
+The device and Simulator builds include FFTW 3.3.11 and PyFFTW 0.15.1,
+scikit-learn 1.9.1, QuTiP 5.3.1, statsmodels 0.15.0, and CVXOPT 1.3.3.
+CVXOPT uses its upstream-pinned SuiteSparse 7.11.0 and includes SuiteSparse
+and FFTW license texts. Their checksum-pinned build scripts are in `scripts/`.
+
+The 80-command Simulator run passed numerical transforms, model fitting,
+quantum evolution, optimization, sparse solves and three parallel random
+forest runs in each of the two bundled interpreters, as well as repeated
+Python interpreter launches. The iOS NumPy
+port now lets worker threads access the initialized state of their own bundled
+interpreter; `patches/numpy-worker-shared-state.patch` preserves separate
+state for the two NumPy frameworks. Cython module-state lookups acquire the
+interpreter lock when generated code calls them without it.
+
+These tests exercise the Simulator payload. The full app still needs its
+remaining upstream packages, commands, resources, integration and device
+validation before an updated TestFlight release.

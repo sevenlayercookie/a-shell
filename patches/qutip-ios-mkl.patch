@@ -1,0 +1,13 @@
+--- a/qutip/settings.py
++++ b/qutip/settings.py
+@@ -107,8 +107,8 @@
+         # TODO: fix the mkl handling on windows or use modules like pydiso to
+         # do it for us.
+         return ""
+-    if plat == "emscripten":
+-        # mkl is not supported on emscripten
++    if plat in ("emscripten", "ios"):
++        # MKL is not available on these platforms
+         return ""
+ 
+     python_dir = Path(sys.executable).parent

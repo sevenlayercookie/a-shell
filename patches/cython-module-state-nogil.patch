@@ -1,0 +1,28 @@
+--- a/Cython/Utility/ModuleSetupCode.c
++++ b/Cython/Utility/ModuleSetupCode.c
+@@ -2778,8 +2778,16 @@
+ }
+ 
+ static PyObject *__Pyx_State_FindModule(CYTHON_UNUSED void* dummy) {
++    /* Generated nogil functions can access module state.  Resolve the
++       interpreter and lookup table while holding its GIL. */
++    int had_gil = PyGILState_Check();
++    PyGILState_STATE gil_state = PyGILState_UNLOCKED;
++    if (!had_gil) gil_state = PyGILState_Ensure();
+     int64_t interpreter_id = PyInterpreterState_GetID(__Pyx_PyInterpreterState_Get());
+-    if (interpreter_id == -1) return NULL;
++    if (interpreter_id == -1) {
++        if (!had_gil) PyGILState_Release(gil_state);
++        return NULL;
++    }
+ 
+ #if CYTHON_MODULE_STATE_LOOKUP_THREAD_SAFE
+     __Pyx_ModuleStateLookupData* data = (__Pyx_ModuleStateLookupData*)__pyx_atomic_pointer_load_relaxed(&__Pyx_ModuleStateLookup_data);
+@@ -2836,6 +2844,7 @@
+ #if CYTHON_MODULE_STATE_LOOKUP_THREAD_SAFE
+         __pyx_atomic_decr_acq_rel(&__Pyx_ModuleStateLookup_read_counter);
+ #endif
++        if (!had_gil) PyGILState_Release(gil_state);
+         return result;
+     }
+ }

@@ -26,6 +26,11 @@ def main():
     build_name = 'numpy-simulator' if args.simulator else 'numpy-ios'
     build = base / build_name
     source = ROOT / 'cpython/packages/numpy'
+    patch = ['patch', '--batch', '-p1', '-i', str(ROOT / 'patches/numpy-worker-shared-state.patch')]
+    if subprocess.run([*patch, '--forward', '--dry-run'], cwd=source, capture_output=True).returncode == 0:
+        subprocess.run([*patch, '--forward'], cwd=source, check=True)
+    elif subprocess.run([*patch, '--reverse', '--dry-run'], cwd=source, capture_output=True).returncode:
+        raise SystemExit('NumPy worker state patch does not match source')
     python = base / 'venv/bin/python'
     meson = source / 'vendored-meson/meson/meson.py'
     payload = base / platform
