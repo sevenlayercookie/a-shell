@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Generate Python-enabled app targets with the terminal-first dependency profile."""
+import hashlib
 import json
 import plistlib
 import shutil
@@ -49,6 +50,27 @@ def main():
             else:
                 retained.append(build_file)
         obj['files'] = retained
+    # Embed staged Python frameworks the target does not declare upstream (mini has no NumPy entry).
+    added = {}
+    for target in list(objects.values()):
+        if target.get('isa') != 'PBXNativeTarget' or target.get('name') not in ['a-Shell', 'a-Shell-mini']:
+            continue
+        resource = 'Resources' if target['name'] == 'a-Shell' else 'Resources_mini'
+        phase = next(objects[key] for key in target['buildPhases']
+                     if objects[key]['isa'] == 'PBXCopyFilesBuildPhase' and objects[key].get('name') == 'Embed Frameworks')
+        declared = {location(objects[file].get('fileRef')) for file in phase['files']}
+        for staged in sorted((ROOT / resource / 'Frameworks').glob('*.framework')):
+            if staged in declared:
+                continue
+            relative = str(staged.relative_to(ROOT))
+            reference, build_file = [hashlib.sha1((kind + relative).encode()).hexdigest()[:24].upper()
+                                     for kind in ['reference:', 'embed:']]
+            objects[reference] = {'isa': 'PBXFileReference', 'lastKnownFileType': 'wrapper.framework',
+                                  'name': staged.name, 'path': relative, 'sourceTree': 'SOURCE_ROOT'}
+            objects[build_file] = {'isa': 'PBXBuildFile', 'fileRef': reference,
+                                   'settings': {'ATTRIBUTES': ['CodeSignOnCopy', 'RemoveHeadersOnCopy']}}
+            phase['files'].append(build_file)
+            added.setdefault(target['name'], []).append(staged.name)
     # Hide commands whose optional native framework is absent from this profile.
     profiles = {}
     for target in objects.values():
@@ -86,8 +108,8 @@ def main():
             if command not in dictionary:
                 raise SystemExit(target['name'] + ': required Python command missing: ' + command)
     manifest = {'profile': 'python-terminal', 'python': '3.13.1+',
-                'deferred': 'Scientific/native third-party Python extensions are not included in this profile.',
-                'omittedFrameworks': sorted(set(removed.values())), 'targets': profiles}
+                'deferred': 'Only the staged native Python extensions are included; install pure Python packages with pip.',
+                'omittedFrameworks': sorted(set(removed.values())), 'addedFrameworks': added, 'targets': profiles}
     for resource in ['Resources', 'Resources_mini']:
         (ROOT / resource / 'Library/python-terminal-profile.json').write_text(json.dumps(manifest, indent=2) + '\n')
     destination.mkdir(exist_ok=True)

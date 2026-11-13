@@ -133,6 +133,9 @@
    @"pythonA -c 'import cartopy as c, cartopy.crs as crs; import matplotlib; matplotlib.use(\"Agg\"); from matplotlib import pyplot as plt; from shapely.geometry import LineString; from io import BytesIO; src=crs.PlateCarree(); dst=crs.Mercator(); x,y=dst.transform_point(1,1,src); assert abs(x-111319.49)<1 and abs(y-110579.97)<10; g=dst.project_geometry(LineString([(0,0),(2,2)]),src); assert not g.is_empty; fig=plt.figure(); ax=fig.add_subplot(111,projection=dst); ax.plot([0,2],[0,2],transform=src); out=BytesIO(); fig.savefig(out,format=\"png\"); assert len(out.getvalue())>1000; plt.close(fig); print(\"CARTOPY_REENTRY_4_OK\",c.__version__)'",
    @"python3 -c 'import pyproj as p, math; p.network.set_network_enabled(True); t=p.Transformer.from_pipeline(\"+proj=pipeline +step +proj=hgridshift +grids=https://cdn.proj.org/us_noaa_conus.tif\"); x,y=t.transform(-100.,40.,errcheck=True); assert math.isfinite(x) and math.isfinite(y) and (x,y)!=(-100.,40.); p.network.set_network_enabled(False); print(\"PROJ_REMOTE_GRID_OK\",x,y)'"
   ];
+  // A bundled smoke-commands.txt (one command per line) replaces the built-in list for reduced profiles.
+  NSString *listed = [NSString stringWithContentsOfFile:[app stringByAppendingPathComponent:@"smoke-commands.txt"] encoding:NSUTF8StringEncoding error:nil];
+  if (listed) commands = [[listed componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"length > 0"]];
   int failures = 0;
   for (NSString *command in commands) {
    FILE *input = fopen("/dev/null", "r"); FILE *log = fopen(output.UTF8String, "a");

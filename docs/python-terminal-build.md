@@ -2,7 +2,8 @@
 
 The terminal profile builds the real `a-Shell-mini` and `a-Shell` targets with
 CPython 3.13, pip, IPython, requests, and the available terminal frameworks.
-SciPy, scikit-learn, and other missing native scientific extensions are deferred.
+The shipping profile is pure Python plus NumPy and cryptography (with cffi);
+see "Native package profile" below. Other native extensions are not included.
 Pico now uses a statically linked, vendored terminfo implementation and is
 included when its framework has been built. Its reentry tests cover 20 editor
 invocations, UTF-8, descriptors, and signal handlers.
@@ -15,6 +16,7 @@ Use the Python revision pinned by the `cpython` submodule. Install a host Python
 ```sh
 git submodule update --init cpython
 python3 scripts/build-python-runtime.py
+python3 scripts/stage-python-native-packages.py
 python3 scripts/prepare-python-terminal-project.py
 xcodebuild -project a-Shell-Python.xcodeproj -scheme a-Shell-mini \
   -configuration Release -destination 'generic/platform=iOS' \
@@ -43,6 +45,31 @@ with the existing internal-only TestFlight export settings. This repairs legacy
 libssh2 metadata, sets framework signature identifiers from their bundle IDs,
 flattens desktop-style framework resource layouts so Info.plist is signed,
 and aligns extension versions with the containing app.
+
+## Native package profile
+
+iOS only loads native code that is signed into the app, so pip on the device
+can install pure Python packages only. Native packages must be staged before
+the build. `scripts/stage-python-native-packages.py` copies the chosen
+distributions, their import stubs and both interpreter copies of their
+frameworks from `build/upstream-parity/device` into `Resources_mini` and
+`Resources`, together with the interpreter built with the reentry patches.
+The default set is NumPy, cryptography, cffi and pycparser; pass `--packages`
+to change it. Build the staged packages first as described in
+`docs/upstream-parity.md`. The project generator embeds every staged framework,
+including ones the upstream target does not declare.
+
+Check a reduced profile in the Simulator with the shipping `Resources_mini`
+payload and only the selected packages:
+
+```sh
+python3 scripts/prepare-python-simulator-smoke.py \
+  --packages numpy cryptography cffi pycparser \
+  --commands tests/python-scoped-smoke-commands.txt
+```
+
+Export archives with `/usr/bin` first in `PATH`; a newer Homebrew rsync breaks
+`xcodebuild -exportArchive` with "Copy failed".
 
 ## Validation
 
