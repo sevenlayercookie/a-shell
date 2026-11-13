@@ -23,7 +23,8 @@ def replace(source, destination):
         destination.unlink()
     destination.parent.mkdir(parents=True, exist_ok=True)
     if source.is_dir():
-        shutil.copytree(source, destination, ignore=shutil.ignore_patterns('__pycache__'))
+        # App Store validation rejects standalone static libraries such as NumPy's libnpymath.a.
+        shutil.copytree(source, destination, ignore=shutil.ignore_patterns('__pycache__', '*.a'))
     else:
         shutil.copy2(source, destination)
 
