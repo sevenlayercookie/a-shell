@@ -242,8 +242,8 @@ not present in that library. Cartopy 0.26.0 and its pyshp dependency are also
 included in the staged payloads. The 97-command Simulator run passed coordinate
 transforms, geodesic calculations, threaded pyproj use, Cartopy plotting and
 an HTTPS fetch and application of a real PROJ grid, in addition to previous
-checks. The package is staged for both iOS architectures tested here; it has
-not yet been integrated into the complete app.
+checks. The packages are staged for iOS device and arm64 Simulator; device runtime
+validation and integration into the complete app remain.
 
 ```sh
 python3 scripts/build-ios-proj-deps.py --simulator
