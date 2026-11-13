@@ -230,3 +230,7 @@ upstream's older GEOS artifacts have no arm64 Simulator slice. Shapely 2.2.0
 uses those libraries. An 84-command Simulator run passed geometry predicates,
 union, WKB, and spatial-index queries across repeated launches and both Python
 runtimes, alongside the earlier numerical and threaded checks.
+
+PyGEOS 0.14 is built with the a-Shell port's source adaptations and GEOS 3.11.
+The 88-command Simulator run also covers PyGEOS predicates, union, WKB and
+spatial indexing across repeated launches and the second Python runtime.
