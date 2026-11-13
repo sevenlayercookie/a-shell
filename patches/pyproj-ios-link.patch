@@ -1,0 +1,16 @@
+--- a/setup.py
++++ b/setup.py
+@@ -194,10 +194,9 @@
+     ext_options = {
+         "include_dirs": include_dirs,
+         "library_dirs": library_dirs,
+-        "runtime_library_dirs": (
+-            library_dirs if os.name != "nt" and sys.platform != "cygwin" else None
+-        ),
+-        "libraries": get_libraries(library_dirs),
++        # a-Shell links the iOS framework explicitly through LDSHARED.
++        "runtime_library_dirs": [],
++        "libraries": [],
+     }
+     # setup cythonized modules
+     return cythonize(

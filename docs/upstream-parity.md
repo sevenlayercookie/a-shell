@@ -234,3 +234,24 @@ runtimes, alongside the earlier numerical and threaded checks.
 PyGEOS 0.14 is built with the a-Shell port's source adaptations and GEOS 3.11.
 The 88-command Simulator run also covers PyGEOS predicates, union, WKB and
 spatial indexing across repeated launches and the second Python runtime.
+
+PROJ 9.4.1 and pyproj 3.8.0 include the coordinate database, TIFF grid
+support, and a-Shell's curl framework for remote grids. The bundled TIFF build
+supports JPEG and Deflate; optional TIFF LZMA, Zstandard and WebP codecs are
+not present in that library. Cartopy 0.26.0 and its pyshp dependency are also
+included in the staged payloads. The 97-command Simulator run passed coordinate
+transforms, geodesic calculations, threaded pyproj use, Cartopy plotting and
+an HTTPS fetch and application of a real PROJ grid, in addition to previous
+checks. The package is staged for both iOS architectures tested here; it has
+not yet been integrated into the complete app.
+
+```sh
+python3 scripts/build-ios-proj-deps.py --simulator
+python3 scripts/build-ios-proj-deps.py
+python3 scripts/build-ios-proj.py --simulator
+python3 scripts/build-ios-proj.py
+python3 scripts/build-upstream-pyproj.py --simulator
+python3 scripts/build-upstream-pyproj.py
+python3 scripts/build-upstream-cartopy.py --simulator
+python3 scripts/build-upstream-cartopy.py
+```
