@@ -224,3 +224,9 @@ interpreter lock when generated code calls them without it.
 These tests exercise the Simulator payload. The full app still needs its
 remaining upstream packages, commands, resources, integration and device
 validation before an updated TestFlight release.
+
+GEOS 3.11.0 is built from its released source for device and arm64 Simulator;
+upstream's older GEOS artifacts have no arm64 Simulator slice. Shapely 2.2.0
+uses those libraries. An 84-command Simulator run passed geometry predicates,
+union, WKB, and spatial-index queries across repeated launches and both Python
+runtimes, alongside the earlier numerical and threaded checks.
