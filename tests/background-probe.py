@@ -5,13 +5,15 @@ A gap between lines means the whole app was paused. Lines that keep coming with 
 only the network stopped. A falling spin count means the CPU was throttled.
 
 `background python3 background-probe.py 90 boost` raises the probe's threads to user-initiated
-priority, to see whether the throttling follows the thread priority.
+priority, to see whether the throttling follows the thread priority. `fast` removes the
+1 MB/s pacing to show the highest download speed the background allows.
 """
 import ctypes, statistics, sys, threading, time, urllib.request
 
 URL = "https://proof.ovh.net/files/1Gb.dat"
 seconds = int(sys.argv[1]) if len(sys.argv) > 1 else 240
 boost = "boost" in sys.argv
+fast = "fast" in sys.argv  # download as fast as the connection allows; uses a lot of data
 received = 0
 errors = []
 libc = ctypes.CDLL(None)
@@ -29,7 +31,8 @@ def download():
             with urllib.request.urlopen(URL, timeout=20) as response:
                 while chunk := response.read(64 * 1024):
                     received += len(chunk)
-                    time.sleep(0.05)  # about 1 MB/s, so the file outlasts the test
+                    if not fast:
+                        time.sleep(0.05)  # about 1 MB/s, so the file outlasts the test
         except Exception as error:
             errors.append(f"{time.strftime('%H:%M:%S')} {error!r}")
             time.sleep(1)
