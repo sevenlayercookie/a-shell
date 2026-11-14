@@ -30,7 +30,7 @@ background dash ~/Documents/process-files.sh
 
 This requests `BGContinuedProcessingTask` runtime. The command starts only when iOS grants the request, keeps its terminal session and output, and can continue when you switch apps or lock the device. Only one background command runs across all windows. If iOS cannot start it immediately, a-Shell reports the submission error; it does not queue the command for a later launch. Standard input and terminal input receive EOF. Use native, noninteractive commands; commands that depend on an editor, browser or WebKit execution are outside this background workflow.
 
-Scripts should report actual progress to the system Live Activity using the existing `progress` command:
+A command that reports nothing gets default progress: the Live Activity shows the elapsed time and a bar that advances every second without completing, so iOS does not treat the work as stalled. Scripts can report actual progress with the existing `progress` command, which replaces the default:
 
 ```sh
 progress 0/100 "Preparing files"

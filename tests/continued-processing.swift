@@ -41,6 +41,29 @@ struct ContinuedProcessingTests {
         failed.finish(success: false)
         check(failed.progress.completedUnitCount == 0, "failure must not claim completed work")
         check(results == [true, false, false], "failure result")
+        var labels: [String?] = []
+        let timed = ContinuedCommandExecution(progress: Progress(), updateTitle: { labels.append($1) }, completion: { _ in })
+        timed.tick(elapsed: 1, command: "python3 job.py")
+        let first = timed.progress.completedUnitCount
+        check(first > 0 && timed.progress.totalUnitCount == 1_000_000, "default progress starts without a report")
+        check(labels.last! == "0:01 · python3 job.py", "default subtitle shows elapsed time")
+        timed.tick(elapsed: 3725, command: "python3 job.py")
+        check(timed.progress.completedUnitCount > first, "default progress advances")
+        check(labels.last! == "1:02:05 · python3 job.py", "elapsed time includes hours")
+        for _ in 0..<5 { timed.tick(elapsed: 1e9, command: "x") }
+        check(timed.progress.completedUnitCount == 999_999, "default progress never completes")
+        check(timed.report(.units(5, 100, "Real")), "real progress replaces default progress")
+        check(timed.progress.completedUnitCount == 5 && timed.progress.totalUnitCount == 100, "real progress resets the bar")
+        let count = labels.count
+        timed.tick(elapsed: 4000, command: "x")
+        check(timed.progress.completedUnitCount == 5 && labels.count == count, "default progress stops after a report")
+        let titled = ContinuedCommandExecution(progress: Progress(), updateTitle: { _,_ in }, completion: { _ in })
+        check(titled.report(.subtitle("Uploading")), "text-only report")
+        titled.tick(elapsed: 2, command: "x")
+        check(titled.progress.completedUnitCount > 0, "text-only reports keep the default bar moving")
+        timed.finish(success: true)
+        timed.tick(elapsed: 5000, command: "x")
+        check(timed.progress.completedUnitCount == 100, "no default progress after completion")
         let context = strdup("continued-processing-test")!
         defer { free(context) }
         ios_setContext(UnsafeMutableRawPointer(context))
