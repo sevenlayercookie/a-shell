@@ -8,8 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		B62600000000000000000002 /* ContinuedProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62600000000000000000001 /* ContinuedProcessing.swift */; };
+		B62700000000000000000002 /* DownloadCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62700000000000000000001 /* DownloadCommand.swift */; };
 		B62600000000000000000003 /* ContinuedProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62600000000000000000001 /* ContinuedProcessing.swift */; };
+		B62700000000000000000003 /* DownloadCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62700000000000000000001 /* DownloadCommand.swift */; };
 		B62600000000000000000004 /* ContinuedProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62600000000000000000001 /* ContinuedProcessing.swift */; };
+		B62700000000000000000004 /* DownloadCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62700000000000000000001 /* DownloadCommand.swift */; };
 
 		2200010030F7400000000001 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2200010030F7400000000003 /* PhotosUI.framework */; };
 		2200010030F7400000000002 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2200010030F7400000000003 /* PhotosUI.framework */; };
@@ -2011,6 +2014,7 @@
 
 /* Begin PBXFileReference section */
 		B62600000000000000000001 /* ContinuedProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuedProcessing.swift; sourceTree = "<group>"; };
+		B62700000000000000000001 /* DownloadCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadCommand.swift; sourceTree = "<group>"; };
 		0D42108A37D6DADFD0F492BE /* ExecuteLongCommandIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExecuteLongCommandIntent.swift; sourceTree = "<group>"; };
 		196EF73B3E7DE25B1CE754F5 /* ProgressCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCommand.swift; sourceTree = "<group>"; };
 		2200010030F7400000000003 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -3073,6 +3077,7 @@
 				2208ACBB22CCE529003985D6 /* Util */,
 				22B1B83322CBC53700F7C452 /* a-Shell.entitlements */,
 				B62600000000000000000001 /* ContinuedProcessing.swift */,
+				B62700000000000000000001 /* DownloadCommand.swift */,
 				22984EED22C93DBC00069497 /* AppDelegate.swift */,
 				22D23117231940B2005B0C12 /* ExtraCommands.swift */,
 				A59100000000000000000004 /* Relay.swift */,
@@ -4520,6 +4525,7 @@
 				620000000000000000000002 /* TerminalPrompt.swift in Sources */,
 				707000000000000000000002 /* TerminalFont.swift in Sources */,
 				B62600000000000000000002 /* ContinuedProcessing.swift in Sources */,
+				B62700000000000000000002 /* DownloadCommand.swift in Sources */,
 				224A903C2ADD0999006DB9CC /* AppDelegate.swift in Sources */,
 				224A903E2ADD0999006DB9CC /* Tips.swift in Sources */,
 				224A903F2ADD0999006DB9CC /* SceneDelegate.swift in Sources */,
@@ -4554,6 +4560,7 @@
 				620000000000000000000004 /* TerminalPrompt.swift in Sources */,
 				707000000000000000000004 /* TerminalFont.swift in Sources */,
 				B62600000000000000000003 /* ContinuedProcessing.swift in Sources */,
+				B62700000000000000000003 /* DownloadCommand.swift in Sources */,
 				22984EEE22C93DBC00069497 /* AppDelegate.swift in Sources */,
 				22984EF022C93DBC00069497 /* SceneDelegate.swift in Sources */,
 				223A1C1C2A5EDCA700B1B9AD /* Tips.swift in Sources */,
@@ -4588,6 +4595,7 @@
 				620000000000000000000003 /* TerminalPrompt.swift in Sources */,
 				707000000000000000000003 /* TerminalFont.swift in Sources */,
 				B62600000000000000000004 /* ContinuedProcessing.swift in Sources */,
+				B62700000000000000000004 /* DownloadCommand.swift in Sources */,
 				229D2478257931E4004A78AC /* AppDelegate.swift in Sources */,
 				223A1C1D2A5EDCA700B1B9AD /* Tips.swift in Sources */,
 				224754D72EFBDF48007C35FE /* SceneDelegate+TerminalView.swift in Sources */,

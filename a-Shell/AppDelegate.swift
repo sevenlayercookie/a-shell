@@ -235,6 +235,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         initializeEnvironment()
         replaceCommand("progress", "ashell_progress", false)
+        replaceCommand("download", "ashell_download", false)
         joinMainThread = false
         ios_setBookmarkDictionaryName("bookmarkNames")
         replaceCommand("relay", "relay_main", true)
@@ -399,6 +400,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     // MARK: UISceneSession Lifecycle
+
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        SystemDownload.shared.resumeEvents(completionHandler)
+    }
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         
