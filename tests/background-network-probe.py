@@ -5,6 +5,7 @@ writes. That needs so little CPU that a drop in speed after leaving the app is a
 
 Run `background python3 background-network-probe.py`, stay in the app for 15 seconds, use another
 app for 30 seconds, return, then read netprobe.log. It discards up to a few GB of data; use Wi-Fi.
+`4x` downloads over four connections at once, to show whether a limit is per connection.
 `cpu` instead hashes on one thread and on four, to show whether the CPU limit is per thread.
 """
 import hashlib, socket, sys, threading, time
@@ -16,8 +17,9 @@ URLS = ["http://cachefly.cachefly.net/100mb.test",
         "http://speedtest.belwue.net/1G"]
 numbers = [int(a) for a in sys.argv[1:] if a.isdigit()]
 seconds = numbers[0] if numbers else 60
+streams = next((int(a[:-1]) for a in sys.argv[1:] if a.endswith('x') and a[:-1].isdigit()), 1)
 received = 0
-busy = 0.0  # CPU seconds the download thread has used
+busy = 0.0  # CPU seconds one download thread has used
 errors = []
 
 def fetch(url, until):
@@ -68,9 +70,10 @@ if not cpu:
         except Exception as error:
             speeds[url] = 0
     url = max(speeds, key=speeds.get)
-    print(f"Using {urlsplit(url).hostname} ({speeds[url] / 2 / 1048576:.1f} MB/s in a 2 s trial). Switch apps after 15 s.", flush=True)
+    print(f"Using {urlsplit(url).hostname} ({speeds[url] / 2 / 1048576:.1f} MB/s in a 2 s trial). {streams} connection(s). Switch apps after 15 s.", flush=True)
     received, busy = 0, 0.0  # the trial ran on this thread; the download thread starts from zero
-    threading.Thread(target=download, args=(url,), daemon=True).start()
+    for _ in range(streams):
+        threading.Thread(target=download, args=(url,), daemon=True).start()
 
 start = last = time.time()
 previous, used = 0, busy
