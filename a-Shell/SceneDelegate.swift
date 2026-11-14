@@ -120,6 +120,7 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
     var windowPrintedContent = ""
     var windowHistory = ""
     var pid: pid_t = 0
+    var pythonInterrupts = PythonInterrupts()
     private var selectedFont = ""
     private var fontSelectionCompleted = DispatchSemaphore(value: 0)
     // Store these for session restore:
@@ -3146,6 +3147,11 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
                         continue
                     }
                 }
+                if PythonInterrupts.refuses(aliasedCommand(arguments[0]) ?? arguments[0]) {
+                    fputs(PythonInterrupts.restartMessage, thread_stderr)
+                    backgroundStatus = 1
+                    break
+                }
                 self.currentCommand = command
                 DispatchQueue.main.async {
                     if (self.isToolbarVisible) {
@@ -3185,6 +3191,7 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
                 }
                 self.resultStack.removeAll()
                 self.pid = ios_fork()
+                self.pythonInterrupts = PythonInterrupts()
                 DispatchQueue.main.async {
                     UIApplication.shared.isIdleTimerDisabled = true
                 }

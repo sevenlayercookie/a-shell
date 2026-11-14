@@ -9,7 +9,44 @@ import SwiftTerm // for the terminal window
 import ios_system
 import TipKit // for helpful tips
 
+/// How Ctrl-C reaches Python. ios_kill cancels the command thread, which skips interpreter
+/// finalization and leaves worker threads running, so the next python command crashes.
+/// SIGINT instead becomes KeyboardInterrupt and Python stops by itself.
+struct PythonInterrupts {
+    enum Action { case interrupt, forceStop }
+    // Python cannot be unloaded, so a cancelled interpreter stays damaged until the app restarts.
+    static var forceStopped = false
+    static let restartMessage = "Python was force-stopped and cannot run again in this session. Close a-Shell from the app switcher and reopen it.\n"
+    private var recent: [TimeInterval] = []
+
+    // A third Ctrl-C within five seconds means the script is not reacting to KeyboardInterrupt.
+    mutating func next(at now: TimeInterval) -> Action {
+        recent = recent.filter { now - $0 < 5 } + [now]
+        return recent.count >= 3 ? .forceStop : .interrupt
+    }
+
+    static func refuses(_ command: String) -> Bool {
+        guard forceStopped else { return false }
+        return ["python", "pip", "ipython", "jupyter", "isympy"].contains { command.hasPrefix($0) } || command.hasSuffix(".py")
+    }
+}
+
 extension SceneDelegate {
+
+    /// Returns false when the command is not Python, or must be cancelled the old way.
+    func interruptPython() -> Bool {
+        guard pid != 0, let program = ios_progname(), String(cString: program).hasPrefix("python") else { return false }
+        // Without Python's handler SIGINT would terminate the app.
+        var handler = sigaction()
+        guard sigaction(SIGINT, nil, &handler) == 0,
+              ![0, 1].contains(unsafeBitCast(handler.__sigaction_u.__sa_handler, to: Int.self)) else { return false }
+        if pythonInterrupts.next(at: Date().timeIntervalSinceReferenceDate) == .forceStop {
+            PythonInterrupts.forceStopped = true
+            terminalView?.feed(text: "\r\n" + PythonInterrupts.restartMessage.replacingOccurrences(of: "\n", with: "\r\n"))
+            return false
+        }
+        return ios_killpid(pid, SIGINT) == 0
+    }
     
     func longestCommonPrefix(_ strs: [String]) -> String {
         guard let first = strs.first else { return "" }
@@ -744,7 +781,9 @@ extension SceneDelegate {
                     ios_switchSession(self.persistentIdentifier?.toCString())
                     ios_setContext(UnsafeMutableRawPointer(mutating: self.persistentIdentifier?.toCString()))
                     // Then send interrupt to the running command:
-                    ios_kill() // TODO: add printPrompt() here if no command running
+                    if !interruptPython() {
+                        ios_kill() // TODO: add printPrompt() here if no command running
+                    }
                 }
                 if (currentCommand == "") {
                     // disable auto-complete menu if running

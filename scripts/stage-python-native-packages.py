@@ -28,6 +28,9 @@ def replace(source, destination):
     else:
         shutil.copy2(source, destination)
 
+# Command threads start with SIGINT blocked; Python needs it to turn Ctrl-C into KeyboardInterrupt.
+INTERRUPT_HOOK = 'import signal; signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})\n'
+
 def frameworks_for(stubs):
     """Each import stub names the Python framework; pythonA uses the PythonA twin."""
     names = set()
@@ -82,6 +85,7 @@ def main():
         base = ROOT / resource
         for entry in sorted(entries):
             replace(site / entry, base / 'Library' / SITE / entry)
+        (base / 'Library' / SITE / 'a-shell-interrupt.pth').write_text(INTERRUPT_HOOK)
         for script in sorted(scripts):
             replace(stage / 'Library/bin' / script, base / 'Library/bin' / script)
         for name in sorted(frameworks):

@@ -59,6 +59,20 @@ to change it. Build the staged packages first as described in
 `docs/upstream-parity.md`. The project generator embeds every staged framework,
 including ones the upstream target does not declare.
 
+## Interrupting Python
+
+Ctrl-C sends SIGINT to a running Python command instead of cancelling its
+thread, so the script gets `KeyboardInterrupt`, its worker threads stop and the
+interpreter finalizes. Cancelling the thread skipped all of that, and the next
+`python` command crashed in the reused interpreter. Command threads start with
+SIGINT blocked, so the stage script installs `a-shell-interrupt.pth` in
+site-packages to unblock it at interpreter startup; `python -S` skips it.
+
+A third Ctrl-C within five seconds falls back to cancelling the thread, for
+scripts that ignore the interrupt. Python cannot be unloaded, so after that the
+app refuses Python commands until it is restarted. A script with worker threads
+still waits for running tasks unless it stops them when interrupted.
+
 Check a reduced profile in the Simulator with the shipping `Resources_mini`
 payload and only the selected packages:
 
