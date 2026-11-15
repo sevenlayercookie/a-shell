@@ -4694,6 +4694,11 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         }
         guard !currentCommand.isEmpty, !backgroundCommandPendingOrRunning, adoptedExecution == nil else { return }
         let command = currentCommand
+        // Editors and prompts wait for the keyboard; a background task would only sit idle.
+        guard !interactiveCommandRunning, terminalView?.isCurrentBufferAlternate != true else {
+            logAutoBackground("skipped, interactive: \(command)")
+            return
+        }
         let asked = Date()
         let state = "app state \(UIApplication.shared.applicationState.rawValue)"
         do {
