@@ -73,6 +73,17 @@ scripts that ignore the interrupt. Python cannot be unloaded, so after that the
 app refuses Python commands until it is restarted. A script with worker threads
 still waits for running tasks unless it stops them when interrupted.
 
+## Running after leaving the app
+
+A command still running when a-Shell loses the screen gets a continued
+processing task attached to it, as if it had been started with `background`;
+iOS 26 grants the request at that moment. From then on the command's `progress`
+calls drive the Live Activity (`tests/background-progress-test.py` checks this).
+Interactive programs are skipped, and "Keep commands running after leaving
+a-Shell" in Settings turns it off. Opening Control Center or Notification
+Centre counts as losing the screen and starts a task too. Stopping the Live
+Activity ends the task, not the command.
+
 Check a reduced profile in the Simulator with the shipping `Resources_mini`
 payload and only the selected packages:
 

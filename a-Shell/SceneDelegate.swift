@@ -4688,8 +4688,8 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         adoptRunningCommand()
     }
 
-    // Proof of concept: a command still running when a-Shell leaves the screen gets a background task,
-    // as if it had been started with `background`. Outcomes go to ~/Documents/autobackground.log.
+    // A command still running when a-Shell leaves the screen gets a background task,
+    // as if it had been started with `background`.
     private func adoptRunningCommand() {
         guard #available(iOS 26.0, *) else { return }
         if adoptedExecution?.isCancelled == true {
@@ -4700,17 +4700,10 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         }
         guard !currentCommand.isEmpty, !backgroundCommandPendingOrRunning, adoptedExecution == nil else { return }
         guard UserDefaults.standard.bool(forKey: "auto_background") else { return }
-        let command = currentCommand
         // Editors and prompts wait for the keyboard; a background task would only sit idle.
-        guard !interactiveCommandRunning, terminalView?.isCurrentBufferAlternate != true else {
-            logAutoBackground("skipped, interactive: \(command)")
-            return
-        }
-        let asked = Date()
-        let state = "app state \(UIApplication.shared.applicationState.rawValue)"
+        guard !interactiveCommandRunning, terminalView?.isCurrentBufferAlternate != true else { return }
         do {
-            try ContinuedProcessing.shared.submit(command: command, leaving: true, start: { execution in
-                self.logAutoBackground(String(format: "granted after %.1fs: ", Date().timeIntervalSince(asked)) + command)
+            try ContinuedProcessing.shared.submit(command: currentCommand, leaving: true, start: { execution in
                 // The command may have ended while iOS was deciding.
                 guard !self.currentCommand.isEmpty else { execution.finish(success: true); return }
                 self.adoptedExecution = execution
@@ -4720,11 +4713,10 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
                     self.adoptedProgressContext = context
                 }
             }, onFailure: { error in
-                self.logAutoBackground("refused later (\(state)): \(error)")
+                NSLog("Background task refused: \(error)")
             })
-            logAutoBackground("requested (\(state)): \(command)")
         } catch {
-            logAutoBackground("refused (\(state)): \(error)")
+            NSLog("Background task refused: \(error)")
         }
     }
 
@@ -4734,24 +4726,9 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         // A command that outlives its task goes back to having `progress` ignored.
         if let context = adoptedProgressContext { ProgressCommand.setHandler(for: context, nil) }
         adoptedProgressContext = nil
-        logAutoBackground(execution.isCancelled ? "expired by iOS" : "command finished, success \(success)")
         execution.finish(success: success)
     }
 
-    private func logAutoBackground(_ message: String) {
-        NSLog("auto-background: \(message)")
-        let line = "\(Date().formatted(date: .omitted, time: .standard)) \(message)\n"
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("autobackground.log")
-        if let handle = try? FileHandle(forWritingTo: url) {
-            handle.seekToEndOfFile()
-            handle.write(Data(line.utf8))
-            try? handle.close()
-        } else {
-            try? line.write(to: url, atomically: true, encoding: .utf8)
-        }
-    }
-    
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
