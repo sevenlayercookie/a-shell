@@ -114,6 +114,11 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
     var closeAfterCommandTerminates = false
     var resetDirectoryAfterCommandTerminates = ""
     private var backgroundCommandPendingOrRunning = false
+    // The background task attached to a command that was already running. Main queue only.
+    private var adoptedExecution: ContinuedCommandExecution?
+    // Where the running command's `progress` calls are looked up, and where the adopted task listens.
+    private var commandProgressContext: UnsafeMutablePointer<CChar>?
+    private var adoptedProgressContext: UnsafeMutablePointer<CChar>?
     var currentCommand = ""
     var interactiveCommandRunning = true
     //
@@ -3023,6 +3028,8 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             var backgroundSucceeded = false
             defer {
                 backgroundExecution?.finish(success: backgroundSucceeded)
+                let succeeded = backgroundSucceeded
+                DispatchQueue.main.async { self.releaseAdoptedCommand(success: succeeded) }
                 if backgroundExecution != nil {
                     DispatchQueue.main.async {
                         self.backgroundCommandPendingOrRunning = false
@@ -3104,13 +3111,16 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             ios_switchSession(self.persistentIdentifier?.toCString())
             ios_setContext(UnsafeMutableRawPointer(mutating: self.persistentIdentifier?.toCString()));
             let progressContext = ios_getContext().map { UnsafeMutablePointer(mutating: $0.assumingMemoryBound(to: CChar.self)) }
+            self.commandProgressContext = progressContext
             if let backgroundExecution, let progressContext {
                 ProgressCommand.setHandler(for: progressContext, backgroundExecution.report)
             }
             defer {
-                if backgroundExecution != nil, let progressContext {
+                // Also removes the handler of a task adopted while the command ran.
+                if let progressContext {
                     ProgressCommand.setHandler(for: progressContext, nil)
                 }
+                self.commandProgressContext = nil
             }
             // Set COLUMNS to term width:
             setenv("COLUMNS", "\(self.width)".toCString(), 1);
@@ -4675,8 +4685,50 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
         NSLog("sceneWillResignActive: \(self.persistentIdentifier).")
+        adoptRunningCommand()
     }
-    
+
+    // A command still running when a-Shell leaves the screen gets a background task,
+    // as if it had been started with `background`.
+    private func adoptRunningCommand() {
+        guard #available(iOS 26.0, *) else { return }
+        if adoptedExecution?.isCancelled == true {
+            // iOS expired the earlier task. Ask again once its reservation has been released.
+            releaseAdoptedCommand(success: false)
+            DispatchQueue.main.async { self.adoptRunningCommand() }
+            return
+        }
+        guard !currentCommand.isEmpty, !backgroundCommandPendingOrRunning, adoptedExecution == nil else { return }
+        guard UserDefaults.standard.bool(forKey: "auto_background") else { return }
+        // Editors and prompts wait for the keyboard; a background task would only sit idle.
+        guard !interactiveCommandRunning, terminalView?.isCurrentBufferAlternate != true else { return }
+        do {
+            try ContinuedProcessing.shared.submit(command: currentCommand, leaving: true, start: { execution in
+                // The command may have ended while iOS was deciding.
+                guard !self.currentCommand.isEmpty else { execution.finish(success: true); return }
+                self.adoptedExecution = execution
+                // From here on the command's `progress` calls drive the Live Activity.
+                if let context = self.commandProgressContext {
+                    ProgressCommand.setHandler(for: context, execution.report)
+                    self.adoptedProgressContext = context
+                }
+            }, onFailure: { error in
+                NSLog("Background task refused: \(error)")
+            })
+        } catch {
+            NSLog("Background task refused: \(error)")
+        }
+    }
+
+    private func releaseAdoptedCommand(success: Bool) {
+        guard let execution = adoptedExecution else { return }
+        adoptedExecution = nil
+        // A command that outlives its task goes back to having `progress` ignored.
+        if let context = adoptedProgressContext { ProgressCommand.setHandler(for: context, nil) }
+        adoptedProgressContext = nil
+        execution.finish(success: success)
+    }
+
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.

@@ -189,12 +189,13 @@ final class ContinuedProcessing {
         }
     }
 
-    func submit(command: String, start: @escaping (ContinuedCommandExecution) -> Void,
+    // `leaving` is for a request made as the app loses the screen, when it may already be inactive.
+    func submit(command: String, leaving: Bool = false, start: @escaping (ContinuedCommandExecution) -> Void,
                 onFailure: @escaping (Error) -> Void) throws {
         dispatchPrecondition(condition: .onQueue(.main))
         guard registered else { throw SubmissionError.unavailable }
         guard self.start == nil, execution == nil else { throw SubmissionError.busy }
-        guard UIApplication.shared.applicationState == .active else { throw SubmissionError.foregroundRequired }
+        guard leaving || UIApplication.shared.applicationState == .active else { throw SubmissionError.foregroundRequired }
         self.start = start
         self.command = command
         let request = BGContinuedProcessingTaskRequest(identifier: identifier,
