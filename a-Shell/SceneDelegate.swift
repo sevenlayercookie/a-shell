@@ -116,6 +116,9 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
     private var backgroundCommandPendingOrRunning = false
     // The background task attached to a command that was already running. Main queue only.
     private var adoptedExecution: ContinuedCommandExecution?
+    // Where the running command's `progress` calls are looked up, and where the adopted task listens.
+    private var commandProgressContext: UnsafeMutablePointer<CChar>?
+    private var adoptedProgressContext: UnsafeMutablePointer<CChar>?
     var currentCommand = ""
     var interactiveCommandRunning = true
     //
@@ -3108,13 +3111,16 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             ios_switchSession(self.persistentIdentifier?.toCString())
             ios_setContext(UnsafeMutableRawPointer(mutating: self.persistentIdentifier?.toCString()));
             let progressContext = ios_getContext().map { UnsafeMutablePointer(mutating: $0.assumingMemoryBound(to: CChar.self)) }
+            self.commandProgressContext = progressContext
             if let backgroundExecution, let progressContext {
                 ProgressCommand.setHandler(for: progressContext, backgroundExecution.report)
             }
             defer {
-                if backgroundExecution != nil, let progressContext {
+                // Also removes the handler of a task adopted while the command ran.
+                if let progressContext {
                     ProgressCommand.setHandler(for: progressContext, nil)
                 }
+                self.commandProgressContext = nil
             }
             // Set COLUMNS to term width:
             setenv("COLUMNS", "\(self.width)".toCString(), 1);
@@ -4708,6 +4714,11 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
                 // The command may have ended while iOS was deciding.
                 guard !self.currentCommand.isEmpty else { execution.finish(success: true); return }
                 self.adoptedExecution = execution
+                // From here on the command's `progress` calls drive the Live Activity.
+                if let context = self.commandProgressContext {
+                    ProgressCommand.setHandler(for: context, execution.report)
+                    self.adoptedProgressContext = context
+                }
             }, onFailure: { error in
                 self.logAutoBackground("refused later (\(state)): \(error)")
             })
@@ -4720,6 +4731,9 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
     private func releaseAdoptedCommand(success: Bool) {
         guard let execution = adoptedExecution else { return }
         adoptedExecution = nil
+        // A command that outlives its task goes back to having `progress` ignored.
+        if let context = adoptedProgressContext { ProgressCommand.setHandler(for: context, nil) }
+        adoptedProgressContext = nil
         logAutoBackground(execution.isCancelled ? "expired by iOS" : "command finished, success \(success)")
         execution.finish(success: success)
     }
