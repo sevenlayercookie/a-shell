@@ -4693,6 +4693,7 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             return
         }
         guard !currentCommand.isEmpty, !backgroundCommandPendingOrRunning, adoptedExecution == nil else { return }
+        guard UserDefaults.standard.bool(forKey: "auto_background") else { return }
         let command = currentCommand
         // Editors and prompts wait for the keyboard; a background task would only sit idle.
         guard !interactiveCommandRunning, terminalView?.isCurrentBufferAlternate != true else {
