@@ -1,0 +1,20 @@
+--- a/setup.py
++++ b/setup.py
+@@ -333,7 +333,7 @@
+ except Exception:
+     pass
+ 
+-cpp11_flag = '-std=c++11'
++cpp11_flag = '-std=c++17'
+ 
+ # 'extra_compile_args' may not be defined
+ eca = cpp_ext_options.get('extra_compile_args', [])
+@@ -343,7 +343,7 @@
+     if cpp11_flag not in eca:
+         eca.append(cpp11_flag)
+ 
+-    eca += [cpp11_flag, '-mmacosx-version-min=10.9', '-stdlib=libc++']
++    eca += [cpp11_flag, '-stdlib=libc++']
+ 
+ # TODO: Windows
+ 

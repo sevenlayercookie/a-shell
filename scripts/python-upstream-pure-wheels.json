@@ -154,6 +154,41 @@
       "filename": "pyshp-3.1.8-py3-none-any.whl",
       "url": "https://files.pythonhosted.org/packages/f4/09/6de1e1dcde35d181ff529e605f9cf4f04ec0ce0f6b42ddd0e78844b2564b/pyshp-3.1.8-py3-none-any.whl",
       "sha256": "e0308cbcf70a425c0813365c87f676274da27cd86f2dc73a8ed28f173f62807e"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0",
+      "filename": "attrs-26.1.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl",
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
+    },
+    {
+      "name": "click",
+      "version": "8.5.1",
+      "filename": "click-8.5.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl",
+      "sha256": "8bb5376d2006950386f8c6427613334a2acadc5f559cb80e638d00b4df957e37"
+    },
+    {
+      "name": "click-plugins",
+      "version": "1.1.1.2",
+      "filename": "click_plugins-1.1.1.2-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/3d/9a/2abecb28ae875e39c8cad711eb1186d8d14eab564705325e77e4e6ab9ae5/click_plugins-1.1.1.2-py2.py3-none-any.whl",
+      "sha256": "008d65743833ffc1f5417bf0e78e8d2c23aab04d9745ba817bd3e71b0feb6aa6"
+    },
+    {
+      "name": "cligj",
+      "version": "0.7.2",
+      "filename": "cligj-0.7.2-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/73/86/43fa9f15c5b9fb6e82620428827cd3c284aa933431405d1bcf5231ae3d3e/cligj-0.7.2-py3-none-any.whl",
+      "sha256": "c1ca117dbce1fe20a5809dc96f01e1c2840f6dcc939b3ddbb1111bf330ba82df"
+    },
+    {
+      "name": "affine",
+      "version": "3.0.1",
+      "filename": "affine-3.0.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/3d/87/e62f55c956b583380e7d2a71705dfd431ee32dd1689d50491ba0c610fc11/affine-3.0.1-py3-none-any.whl",
+      "sha256": "cda3b303325e7bf2bf34817e68753a0d1c4cacbdd451fe67c4878dc2ecbaa540"
     }
   ]
 }
