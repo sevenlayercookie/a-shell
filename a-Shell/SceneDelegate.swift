@@ -2997,9 +2997,11 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         if (!command.contains("\n")) {
             // save command in history.
             // We don't store multi-line commands in history, as they create issues.
-            if (history.last != command) && (command != "") {
+            // A background command arrives here without its prefix; history keeps what was typed.
+            let entry = backgroundExecution == nil ? command : "background " + command
+            if (history.last != entry) && (command != "") {
                 // only store command if different from last command
-                history.append(command)
+                history.append(entry)
             }
             while (history.count > 100) {
                 // only keep the last 100 commands
