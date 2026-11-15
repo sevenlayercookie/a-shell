@@ -114,6 +114,8 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
     var closeAfterCommandTerminates = false
     var resetDirectoryAfterCommandTerminates = ""
     private var backgroundCommandPendingOrRunning = false
+    // The background task attached to a command that was already running. Main queue only.
+    private var adoptedExecution: ContinuedCommandExecution?
     var currentCommand = ""
     var interactiveCommandRunning = true
     //
@@ -3021,6 +3023,8 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
             var backgroundSucceeded = false
             defer {
                 backgroundExecution?.finish(success: backgroundSucceeded)
+                let succeeded = backgroundSucceeded
+                DispatchQueue.main.async { self.releaseAdoptedCommand(success: succeeded) }
                 if backgroundExecution != nil {
                     DispatchQueue.main.async {
                         self.backgroundCommandPendingOrRunning = false
@@ -4673,6 +4677,57 @@ class SceneDelegate: UIViewController, UIWindowSceneDelegate, WKNavigationDelega
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
         NSLog("sceneWillResignActive: \(self.persistentIdentifier).")
+        adoptRunningCommand()
+    }
+
+    // Proof of concept: a command still running when a-Shell leaves the screen gets a background task,
+    // as if it had been started with `background`. Outcomes go to ~/Documents/autobackground.log.
+    private func adoptRunningCommand() {
+        guard #available(iOS 26.0, *) else { return }
+        if adoptedExecution?.isCancelled == true {
+            // iOS expired the earlier task. Ask again once its reservation has been released.
+            releaseAdoptedCommand(success: false)
+            DispatchQueue.main.async { self.adoptRunningCommand() }
+            return
+        }
+        guard !currentCommand.isEmpty, !backgroundCommandPendingOrRunning, adoptedExecution == nil else { return }
+        let command = currentCommand
+        let asked = Date()
+        let state = "app state \(UIApplication.shared.applicationState.rawValue)"
+        do {
+            try ContinuedProcessing.shared.submit(command: command, leaving: true, start: { execution in
+                self.logAutoBackground(String(format: "granted after %.1fs: ", Date().timeIntervalSince(asked)) + command)
+                // The command may have ended while iOS was deciding.
+                guard !self.currentCommand.isEmpty else { execution.finish(success: true); return }
+                self.adoptedExecution = execution
+            }, onFailure: { error in
+                self.logAutoBackground("refused later (\(state)): \(error)")
+            })
+            logAutoBackground("requested (\(state)): \(command)")
+        } catch {
+            logAutoBackground("refused (\(state)): \(error)")
+        }
+    }
+
+    private func releaseAdoptedCommand(success: Bool) {
+        guard let execution = adoptedExecution else { return }
+        adoptedExecution = nil
+        logAutoBackground(execution.isCancelled ? "expired by iOS" : "command finished, success \(success)")
+        execution.finish(success: success)
+    }
+
+    private func logAutoBackground(_ message: String) {
+        NSLog("auto-background: \(message)")
+        let line = "\(Date().formatted(date: .omitted, time: .standard)) \(message)\n"
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("autobackground.log")
+        if let handle = try? FileHandle(forWritingTo: url) {
+            handle.seekToEndOfFile()
+            handle.write(Data(line.utf8))
+            try? handle.close()
+        } else {
+            try? line.write(to: url, atomically: true, encoding: .utf8)
+        }
     }
     
     func sceneWillEnterForeground(_ scene: UIScene) {
